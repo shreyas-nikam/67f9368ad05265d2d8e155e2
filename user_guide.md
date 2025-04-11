@@ -3,115 +3,50 @@ summary: Portfolio Optimization Examples Using Financial Toolbox User Guide
 feedback link: https://docs.google.com/forms/d/e/1FAIpQLSfWkOK-in_bMMoHSZfcIvAeO58PAH9wrDqcxnJABHaxiDqhSA/viewform?usp=sf_link
 environments: Web
 status: Published
-# QuLab User Guide: Exploring Portfolio Optimization
+# Portfolio Optimization and Risk Management Codelab
 
-## Introduction to QuLab
-Duration: 00:02
+This codelab guides you through a Streamlit application designed to illustrate key concepts in portfolio optimization and risk management. The application allows you to visualize asset risks and returns, explore the efficient frontier, and identify portfolios that meet specific risk and return targets. Understanding these concepts is crucial for making informed investment decisions and managing portfolio risk effectively.
 
-Welcome to QuLab, your interactive guide to understanding portfolio optimization using practical examples. In today's complex financial markets, constructing an optimal portfolio is crucial for achieving your investment goals while managing risk effectively. This codelab will walk you through the key concepts of portfolio optimization using the QuLab application.
+## Understanding Asset Risks and Returns
 
-QuLab is designed to illustrate fundamental portfolio optimization techniques in an intuitive and visual manner. Through this application, you will explore concepts like risk and return, the efficient frontier, target portfolio optimization, the impact of transaction costs, and the Maximum Sharpe Ratio portfolio.
-
-This application is a multipage application, and you can navigate through the different sections using the sidebar on the left. Each page focuses on a specific aspect of portfolio optimization, allowing you to learn step by step. Let's begin our journey to understand portfolio optimization with QuLab!
-
-## Overview of Assets and Data
-Duration: 00:03
-
-Navigate to the "Overview" page using the sidebar. This page provides a foundational understanding of portfolio optimization by visualizing the risk and return characteristics of individual assets.
-
-In the real world, every asset, like stocks or bonds, comes with an expected return and a certain level of risk. Higher returns typically come with higher risks. Portfolio optimization is about balancing these risks and returns across a collection of assets to achieve the best possible portfolio for your investment preferences.
-
-On this page, you will see a scatter plot titled "Asset Risks vs Returns". This plot represents synthetic data simulating a set of assets. Each point on the plot represents an individual asset, labeled as "Asset 1", "Asset 2", and so on.
-
-*   The horizontal axis (Risk) represents the volatility or standard deviation of the asset's returns, which is a measure of its riskiness. Assets further to the right are considered riskier.
-*   The vertical axis (Return) represents the expected annual return of the asset. Assets higher up are expected to provide higher returns.
-
-By examining this plot, you can visually understand the risk-return profile of different assets. Notice how assets are scattered across the plot, indicating a range of risk and return characteristics. This visualization is the starting point for building a portfolio, as we need to select and combine assets based on their individual profiles and how they interact with each other.
-
-## Understanding the Efficient Frontier
-Duration: 00:03
-
-Next, navigate to the "Efficient Frontier" page using the sidebar. The efficient frontier is a cornerstone concept in modern portfolio theory.
-
-<aside class="positive">
-The <b>efficient frontier</b> represents the set of portfolios that offer the <b>highest expected return for a given level of risk</b>, or the <b>lowest risk for a given level of expected return</b>. Portfolios on this frontier are considered "efficient" because they optimally balance risk and return.
-</aside>
-
-On this page, you will see a line plot titled "Efficient Frontier". This curve is generated using dummy data to represent a typical efficient frontier.
-
-*   The horizontal axis (Portfolio Risk) represents the risk of the entire portfolio, not just individual assets.
-*   The vertical axis (Portfolio Return) represents the expected return of the portfolio.
-
-Every point on the efficient frontier line represents an optimally diversified portfolio.  Any portfolio below the efficient frontier is considered suboptimal because, for the same level of risk, you could achieve a higher return by moving up to the frontier, or for the same return, you could reduce your risk by moving to the left on the frontier.
-
-The efficient frontier is a crucial tool for investors as it helps to narrow down the choices to only those portfolios that are optimally balanced in terms of risk and return.
-
-## Target Portfolio Optimization
 Duration: 00:05
 
-Now, proceed to the "Target Portfolio Optimization" page from the sidebar. This page allows you to interactively explore how to find a portfolio on the efficient frontier that best matches your specific investment preferences, defined by your target return and risk levels.
+This step focuses on the first page of the application, which visualizes the relationship between risk and return for individual assets, the market, cash, and an equally-weighted portfolio. The key concept here is that higher potential returns typically come with higher risk.
 
-On this page, you will find two interactive sliders:
-
-*   **Target Return (annualized):** This slider allows you to set your desired annual return for your portfolio. You can adjust this value to reflect your investment goals.
-*   **Target Risk (annualized standard deviation):** This slider lets you specify the level of risk you are comfortable taking in pursuit of your target return.
-
-As you adjust these sliders, the application calculates and highlights a portfolio on the efficient frontier that is closest to your specified target risk and return.
-
-You will see the efficient frontier plot again, but this time, there is an additional red marker. This red marker represents the "Target Portfolio" – the portfolio on the efficient frontier that is nearest to the combination of target return and target risk you have set.
-
-Below the plot, you will also see text indicating the risk and return of this target portfolio.
-
-By using this interactive tool, you can understand how your investment goals and risk tolerance translate into a specific portfolio on the efficient frontier. This demonstrates a practical approach to portfolio optimization where you start with your desired outcomes and then find the most efficient portfolio to achieve them.
-
-## Impact of Transaction Costs
-Duration: 00:04
-
-Navigate to the "Transaction Costs Impact" page using the sidebar. In the real world, trading assets incurs transaction costs, such as brokerage fees, which can reduce the overall returns of a portfolio. This page illustrates how these costs can affect the efficient frontier.
-
-On this page, you will find two input fields:
-
-*   **Buy Cost:** This field allows you to specify the transaction cost incurred when buying assets, expressed as a fraction of the transaction value.
-*   **Sell Cost:**  This field allows you to specify the transaction cost when selling assets, also as a fraction of the transaction value.
-
-As you adjust these cost parameters, you will observe changes in the efficient frontier plot.  In this simplified example, we assume that transaction costs linearly reduce the returns of the portfolios. Therefore, as you increase the buy and sell costs, you will notice the efficient frontier shifting downwards.
-
-This downward shift indicates that for every level of risk, the achievable portfolio return is reduced due to transaction costs.  This highlights the importance of considering transaction costs when constructing and managing a portfolio, especially for strategies that involve frequent trading.
-
-<aside class="negative">
-<b>Transaction costs</b> can significantly erode portfolio returns over time, especially for active trading strategies. Minimizing these costs is an important aspect of portfolio management.
-</aside>
-
-## Maximum Sharpe Ratio Portfolio
-Duration: 00:03
-
-Finally, go to the "Maximum Sharpe Ratio Portfolio" page using the sidebar. The Sharpe Ratio is a widely used metric to evaluate the risk-adjusted return of an investment. It measures the excess return per unit of risk. The portfolio with the Maximum Sharpe Ratio is often considered the optimal portfolio by many investors.
+1.  **Accessing the Page:** Navigate to "Page 1" in the application.
+2.  **Interpreting the Scatter Plot:**  The scatter plot displays assets based on their annualized mean returns (y-axis) and standard deviations (x-axis). Each point represents an asset, with its label indicating the asset's name.
+3.  **Analyzing Asset Positions:**  Observe the positions of different assets on the plot. Assets with higher returns and higher risk will be located towards the top right, while those with lower returns and lower risk will be towards the bottom left. Notice where "Market", "Cash", and "Equal" portfolios fall in terms of risk and return.  "Cash" typically has low risk and low return, while the "Market" portfolio aims for higher returns with correspondingly higher risk. The "Equal" weighted portfolio falls somewhere in between, representing a simple diversification strategy.
 
 <aside class="positive">
-The <b>Sharpe Ratio</b> is calculated as <b>(Portfolio Return - Risk-Free Rate) / Portfolio Risk</b>. It quantifies how much excess return you are receiving for the level of risk you are taking. A higher Sharpe Ratio is generally better.
+<b>Tip:</b> Pay close attention to the spread of assets on the plot. A wider spread indicates a greater diversity in risk and return profiles.
 </aside>
 
-On this page, you will see the efficient frontier plot once more. This time, there is a green marker on the frontier, labeled "Max Sharpe Portfolio". This marker represents the portfolio on the efficient frontier that maximizes the Sharpe Ratio.
+## Exploring the Efficient Frontier and Tangent Line
 
-In practice, finding the Maximum Sharpe Ratio portfolio involves considering a risk-free rate (like the return of a government bond) and then identifying the portfolio on the efficient frontier that provides the highest Sharpe Ratio.  This portfolio is often favored because it offers the best return for each unit of risk taken, relative to a risk-free investment.
+Duration: 00:10
 
-Below the plot, you will see the risk and return values for the Maximum Sharpe Portfolio.
+This step guides you through the second page, which visualizes the efficient frontier and the tangent line. The efficient frontier represents the set of portfolios that offer the highest expected return for a given level of risk, or the lowest risk for a given level of expected return. The tangent line helps identify the portfolio with the highest Sharpe ratio (risk-adjusted return).
 
-This page illustrates the concept of selecting a portfolio based on optimizing a specific performance metric like the Sharpe Ratio, which is a common goal in portfolio management.
+1.  **Accessing the Page:** Navigate to "Page 2" in the application.
+2.  **Understanding the Efficient Frontier:**  The curved line on the plot is the efficient frontier. Portfolios on this line are considered "efficient" because they provide the best possible risk-return trade-off.
+3.  **Interpreting the Tangent Line:** The straight line that touches the efficient frontier is the tangent line. The point where the tangent line touches the efficient frontier represents the portfolio with the highest Sharpe ratio. This is the portfolio that gives you the most return for the amount of risk you are taking, given the risk-free rate.
+4.  **Analyzing Portfolio Positions:**  The plot also shows example positions of "Market", "Cash" and "Equal" weighted portfolios. Notice how these portfolios compare to the efficient frontier. An efficient portfolio will always lie on the efficient frontier, meaning that the "Market","Cash" and "Equal" portfolios as plotted are not efficient.
 
-## Conclusion
-Duration: 00:01
+<aside class="negative">
+<b>Warning:</b> Remember that the efficient frontier is based on historical data and assumptions about future returns and risks. Actual results may vary.
+</aside>
 
-Congratulations! You have now explored the key functionalities of QuLab and gained a better understanding of fundamental portfolio optimization concepts.
+## Identifying Target Return and Risk Portfolios
 
-Through QuLab, you have:
+Duration: 00:10
 
-*   Visualized the risk and return profiles of individual assets.
-*   Learned about the efficient frontier and its importance in portfolio optimization.
-*   Interactively identified target portfolios based on your risk and return preferences.
-*   Observed the impact of transaction costs on portfolio returns and the efficient frontier.
-*   Discovered the concept of the Maximum Sharpe Ratio portfolio.
+This step focuses on the third page, which demonstrates how to identify portfolios that meet specific target return and risk values on the efficient frontier.
 
-We encourage you to revisit each page and experiment with the interactive elements to further solidify your understanding. Portfolio optimization is a dynamic field, and tools like QuLab can help you build intuition and practical knowledge.
+1.  **Accessing the Page:** Navigate to "Page 3" in the application.
+2.  **Setting Target Values:**  Use the `Target Return (%)` and `Target Risk (%)` input fields to specify your desired portfolio return and risk levels.  For example, you might set a target return of 15% and a target risk of 10%.
+3.  **Analyzing Targeted Portfolios:** The plot will display markers indicating the positions of the targeted portfolios based on your input values. Observe where these portfolios fall in relation to the efficient frontier. If a target falls on the efficient frontier, it represents an achievable optimal portfolio based on the data used. If it falls below the frontier, it is not achievable given the risk, and if it falls above the frontier, it may not be optimal.
+4. **Experiment with different risk/return values**: Change the values of the target return and risk and see how the position of the green and red dots change.
 
-Thank you for using QuLab to explore the world of portfolio optimization!
+<aside class="positive">
+<b>Tip:</b> This page allows you to explore the feasibility of achieving specific investment goals given the available assets and their risk-return profiles.
+</aside>
