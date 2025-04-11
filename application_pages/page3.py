@@ -1,92 +1,108 @@
 
 import streamlit as st
-import pandas as pd
 import numpy as np
+import pandas as pd
+import plotly.express as px
 import plotly.graph_objects as go
-import math
 
 def run_page3():
-    st.title("Page 3: Target Return and Risk Portfolios")
-    st.markdown("This page shows how to find portfolios that match specified target return and risk values on the efficient frontier.")
+    st.header("Efficient Frontier with Tangent Line")
 
-    # Simulate data (same as Page 1 & 2)
-    AssetList = ['Asset' + str(i) for i in range(1, 31)]
-    AssetMean = np.random.rand(30) * 0.2
-    AssetCovar = np.random.rand(30, 30) * 0.01
-    AssetCovar = np.triu(AssetCovar) + np.triu(AssetCovar, 1).T
-    np.fill_diagonal(AssetCovar, np.random.rand(30) * 0.05)
+    # Load the data (replace with actual loading from file if needed)
+    # In the original code, the data is loaded using load BlueChipStockMoments
+    # For this streamlit app, let's assume the data is stored as numpy arrays or pandas DataFrames
 
-    CashMean = 0.05
+    # Generate synthetic data (based on BlueChipStockMoments.mat)
+    np.random.seed(42)  # for reproducibility
+    num_assets = 30
+    AssetList = [f'Asset {i+1}' for i in range(num_assets)]
+    AssetMean = np.random.rand(num_assets) * 0.2  # Annualized mean returns (e.g., 0 to 20%)
+    AssetCovar = np.random.rand(num_assets, num_assets)
+    AssetCovar = np.triu(AssetCovar) + AssetCovar.T - np.diag(np.diag(AssetCovar)) #Make symmetric
+    AssetCovar = AssetCovar * 0.01 # Scale the covariance matrix
+    CashMean = 0.03  # Risk-free rate (e.g., 3%)
+    CashVar = 0.0001
+    MarketMean = 0.10  # Market mean return (e.g., 10%)
+    MarketVar = 0.04
 
-    # Portfolio object simulation (same as Page 2)
+    # Calculate standard deviations
+    AssetRisk = np.sqrt(np.diag(AssetCovar))
+    MarketRisk = np.sqrt(MarketVar)
+    CashRisk = np.sqrt(CashVar)
+
+    # Equal-weighted portfolio
+    EqualWeight = np.ones(num_assets) / num_assets
+    EqualMean = np.sum(EqualWeight * AssetMean)
+    EqualRisk = np.sqrt(EqualWeight @ AssetCovar @ EqualWeight)
+
+    # Portfolio object (Simplified for demonstration)
     class Portfolio:
         def __init__(self, AssetList, RiskFreeRate):
             self.AssetList = AssetList
             self.RiskFreeRate = RiskFreeRate
             self.NumAssets = len(AssetList)
-            self.InitPort = None  # Initial portfolio weights
-            self.AssetMean = None
-            self.AssetCovar = None
-            self.Bounds = None
+
         def setAssetMoments(self, AssetMean, AssetCovar):
             self.AssetMean = AssetMean
             self.AssetCovar = AssetCovar
-        def setInitPort(self, InitPort):
-            self.InitPort = InitPort
+
+        def setInitPort(self, initial_weights):
+            self.InitPort = initial_weights
+
         def setDefaultConstraints(self):
             # Long-only, fully invested
-            self.Bounds = [(0, None) for _ in range(self.NumAssets)]  # Non-negative weights
-        def setBudget(self, min_budget, max_budget):
-            pass
-        def setCosts(self, BuyCost, SellCost):
-            pass
-        def setTurnover(self, Turnover):
-            pass
-        def setTrackingError (self, TrackingError, TrackingPort):
-            pass
-        def setBounds(self, minBound, maxBound):
-            pass
-        def setOnewayTurnover(self, Turnover, InitPort):
-            pass
+            pass  # In a real implementation, add constraint matrices here
+
+        def setBudget(self, min_cash, max_cash):
+            self.min_cash = min_cash
+            self.max_cash = max_cash
 
     p = Portfolio(AssetList, CashMean)
     p.setAssetMoments(AssetMean, AssetCovar)
-    p.setInitPort(np.array([1/30] * 30))
+    p.setInitPort(np.ones(num_assets) / num_assets)
     p.setDefaultConstraints()
 
-    # Efficient Frontier Simulation
-    num_portfolios = 20
-    prsk = np.linspace(0.05, 0.2, num_portfolios)  # Example risk values
-    pret = np.linspace(0.07, 0.25, num_portfolios) # Example return values
+    # Estimate efficient frontier (Simplified)
+    def estimateFrontier(p, num_points=20):
+        # In a real implementation, this would use an optimization solver
+        # Here, we'll generate random portfolios
+        weights = np.random.rand(num_points, p.NumAssets)
+        weights = weights / np.sum(weights, axis=1, keepdims=True)  # Normalize weights
+        return weights
 
-    # Input fields for Target Return and Target Risk
-    TargetReturn = st.number_input("Target Return (%)", min_value=0.0, max_value=0.5, value=0.2, step=0.01)
-    TargetRisk = st.number_input("Target Risk (%)", min_value=0.0, max_value=0.5, value=0.15, step=0.01)
+    def estimatePortMoments(p, weights):
+        returns = np.sum(weights * p.AssetMean, axis=1)
+        risks = np.array([np.sqrt(w @ p.AssetCovar @ w.T) for w in weights])
+        return risks, returns
 
-    # Targeted Portfolios (simulation)
-    arsk = TargetRisk / 100
-    aret = TargetReturn / 100
-    brsk = TargetRisk / 100
-    bret = TargetReturn / 100
+    # Tangent Line
+    q = Portfolio(AssetList, CashMean)
+    q.setAssetMoments(AssetMean, AssetCovar)
+    q.setBudget(0, 1)  # Budget constraint
+    qwgt = estimateFrontier(q, 20)
+    qrsk, qret = estimatePortMoments(q, qwgt)
+
+    weights = estimateFrontier(p, 20)
+    risks, returns = estimatePortMoments(p, weights)
+
+    # Create a DataFrame for the efficient frontier
+    frontier_data = pd.DataFrame({'Risk': risks, 'Return': returns})
+
+    # Create a DataFrame for the tangent efficient frontier
+    tangent_frontier_data = pd.DataFrame({'Risk': qrsk, 'Return': qret})
+
 
     # Create the plot
-    fig = go.Figure()
+    fig = px.line(frontier_data, x='Risk', y='Return', title='Efficient Frontier with Tangent Line',
+                  labels={'Return': 'Annualized Return', 'Risk': 'Annualized Risk'})
 
-    # Efficient Frontier line
-    fig.add_trace(go.Scatter(x=prsk, y=pret, mode='lines', name='Efficient Frontier'))
+    fig.add_trace(go.Scatter(x=tangent_frontier_data['Risk'], y=tangent_frontier_data['Return'], mode='lines', name='Tangent Frontier'))
 
-    # Target Return Portfolio
-    fig.add_trace(go.Scatter(x=[arsk], y=[aret], mode='markers', name=f'{TargetReturn}% Return',
-                             marker=dict(size=10, color='green')))
+    fig.add_trace(go.Scatter(x=[MarketRisk, CashRisk, EqualRisk], y=[MarketMean, CashMean, EqualMean],
+                             mode='markers', name='Markers',
+                             marker=dict(size=[10, 10, 10]),
+                             text=['Market', 'Cash', 'Equal']))
 
-    # Target Risk Portfolio
-    fig.add_trace(go.Scatter(x=[brsk], y=[bret], mode='markers', name=f'{TargetRisk}% Risk',
-                             marker=dict(size=10, color='red')))
-
-    fig.update_layout(title='Efficient Frontier with Targeted Portfolios',
-                      xaxis_title='Portfolio Risk',
-                      yaxis_title='Portfolio Return')
+    fig.update_layout(showlegend=False)
 
     st.plotly_chart(fig, use_container_width=True)
-
-run_page3()
