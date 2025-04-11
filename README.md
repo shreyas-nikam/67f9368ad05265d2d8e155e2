@@ -1,33 +1,24 @@
 
-# QuCreate Streamlit Lab
+# QuLab - Portfolio Optimization Examples
 
-This repository contains a Streamlit application for demonstrating the features and capabilities of the QuCreate platform.
+This Streamlit application demonstrates portfolio optimization concepts using the Financial Toolbox.
 
-## Features
-- Streamlit sidebar with a company logo.
-- Template for easy development.
-- Placeholder for adding custom code.
+## Overview
 
-## Getting Started
+This application provides an interactive environment to explore mean-variance portfolio optimization and related techniques. It's based on examples from the MATLAB Financial Toolbox, adapted for Streamlit and Plotly.
 
-### Prerequisites
-- Python 3.8 or later
-- Streamlit installed (see `requirements.txt`).
+## Instructions
 
-### Installation
-1. Clone the repository
-2. Install dependencies:
-`pip install -r requirements.txt`
+1.  Clone the repository.
+2.  Install the required packages: `pip install -r requirements.txt`
+3.  Run the application: `streamlit run app.py`
 
-### Running the Application
-1. Run the Streamlit app:
+## Pages
 
-### Development
-1. Modify the `app.py` file to add your custom code.
-2. Use the placeholder section (`# Code goes here`) to add new functionality.
-
-### Deployment
-- Deploy your Streamlit app using Streamlit Sharing, Docker, or any other platform supporting Python web applications.
+*   **Page 1:** [Description of Page 1]
+*   **Page 2:** [Description of Page 2]
+*   **Page 3:** [Description of Page 3]
 
 ## License
-© 2025 QuantUniversity. All Rights Reserved. Educational use only. For licensing details, please contact QuantUniversity.
+
+© 2025 QuantUniversity. All Rights Reserved. This demonstration is for educational use only.
