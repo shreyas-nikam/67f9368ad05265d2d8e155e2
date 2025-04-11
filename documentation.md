@@ -3,230 +3,369 @@ summary: Portfolio Optimization Examples Using Financial Toolbox Documentation
 feedback link: https://docs.google.com/forms/d/e/1FAIpQLSfWkOK-in_bMMoHSZfcIvAeO58PAH9wrDqcxnJABHaxiDqhSA/viewform?usp=sf_link
 environments: Web
 status: Published
-# QuLab Codelab: Portfolio Optimization with Streamlit
+# Streamlit Portfolio Optimization Codelab
 
-## Introduction to QuLab
-Duration: 00:05:00
+This codelab guides you through a Streamlit application designed to visualize key concepts in portfolio optimization.  We'll explore asset risks and returns, the efficient frontier, and how to target specific risk and return profiles. This application is valuable for understanding Modern Portfolio Theory (MPT) and its practical implications.  The application provides interactive visualizations that make these concepts more accessible.
 
-Welcome to the QuLab codelab! This codelab will guide you through the functionalities of the QuLab Streamlit application, a tool designed to illustrate key concepts in portfolio optimization using a financial toolbox.
+## Application Overview
+Duration: 00:05
 
-In today's financial landscape, understanding portfolio optimization is crucial for developers and financial analysts alike. This application provides an interactive and visual way to grasp these complex concepts, making it an invaluable educational resource and a starting point for building more sophisticated financial tools.
+This Streamlit application consists of three pages, each focusing on a different aspect of portfolio optimization:
 
-**Key Concepts You'll Explore:**
+*   **Page 1: Asset Risks and Returns:**  Visualizes the annualized mean returns and standard deviations of individual assets, along with market, cash, and equal-weighted portfolios.
+*   **Page 2: Efficient Frontier and Tangent Line:** Illustrates the efficient frontier, the tangent line originating from the risk-free rate (cash), and key portfolio characteristics.
+*   **Page 3: Target Return and Risk Portfolios:** Demonstrates how to find portfolios that match specified target return and risk values on the efficient frontier.
 
-*   **Portfolio Optimization:** Learn the basics of constructing an optimal portfolio to maximize returns for a given level of risk, or minimize risk for a given level of return.
-*   **Efficient Frontier:** Understand the concept of the efficient frontier, representing the set of optimal portfolios that offer the highest expected return for a defined level of risk or the lowest risk for a given level of expected return.
-*   **Risk and Return:** Visualize the relationship between risk and return for individual assets and portfolios.
-*   **Sharpe Ratio:** Explore the Sharpe ratio as a measure of risk-adjusted return and identify the portfolio that maximizes it.
-*   **Transaction Costs:** Analyze the impact of transaction costs on portfolio optimization and the efficient frontier.
-*   **Target Portfolio Optimization:** Learn how to identify a portfolio on the efficient frontier that best meets specific target return and risk objectives.
+The application uses simulated data to represent asset characteristics, allowing you to explore the relationships between risk and return in a portfolio context.  The visualizations are created using Plotly, providing interactive and informative charts.
 
-By the end of this codelab, you will have a solid understanding of how QuLab works, the financial concepts it demonstrates, and how you can potentially adapt and expand upon it for your own projects.
+## Setting up the Application
+Duration: 00:10
 
-## Setting up QuLab Application
-Duration: 00:03:00
+To run this application, you'll need Python and the following libraries:
 
-Before diving into the application's features, let's set it up locally. Ensure you have Python and Streamlit installed. If not, install them using pip:
+*   Streamlit
+*   Pandas
+*   NumPy
+*   Plotly
+
+You can install these libraries using pip:
 
 ```console
 pip install streamlit pandas numpy plotly
 ```
 
-Once you have the prerequisites, save the provided code snippets into the following files in the same directory:
+The application is structured as follows:
 
-*   `app.py` (main application)
-*   `pages/Overview.py`
-*   `pages/EfficientFrontier.py`
-*   `pages/TargetPortfolio.py`
-*   `pages/TransactionCosts.py`
-*   `pages/MaxSharpe.py`
+*   `application_pages/page1.py`: Contains the code for Page 1.
+*   `application_pages/page2.py`: Contains the code for Page 2.
+*   `application_pages/page3.py`: Contains the code for Page 3.
 
-To run the application, navigate to the directory containing `app.py` in your terminal and execute:
+To run the application, you'll need a main script (e.g., `main.py`) that imports and calls the `run_pageX()` functions from each page. Since a main script has not been provided, you can run each page separately using the streamlit run command. For example, to run `page1.py`:
 
 ```console
-streamlit run app.py
+streamlit run application_pages/page1.py
+```
+You can run each page individually to explore its functionality.
+
+## Page 1: Asset Risks and Returns
+Duration: 00:15
+
+This page displays a scatter plot of asset risks (standard deviations) versus their annualized mean returns.  It helps visualize the risk-return profile of individual assets and how they compare to the market, cash, and an equal-weighted portfolio.
+
+**Key Concepts:**
+
+*   **Annualized Mean Return:**  The average return of an asset over a year.
+*   **Standard Deviation:** A measure of the volatility or risk of an asset.  Higher standard deviation indicates higher risk.
+*   **Market Portfolio:**  Represents a broad market index, such as the S\&P 500.
+*   **Cash:** Represents a risk-free asset, such as a Treasury bill.
+*   **Equal-Weighted Portfolio:** A portfolio where each asset has the same weight (e.g., if there are 30 assets, each has a weight of 1/30).
+
+**Code Explanation:**
+
+```python
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.express as px
+import math
+
+def run_page1():
+    st.title("Page 1: Asset Risks and Returns")
+    st.markdown("This page visualizes the annualized mean returns and standard deviations of individual assets, along with the market, cash, and equal-weighted portfolios.")
+
+    # Simulate data from BlueChipStockMoments.mat
+    AssetList = ['Asset' + str(i) for i in range(1, 31)]
+    AssetMean = np.random.rand(30) * 0.2  # Random means between 0 and 0.2
+    AssetCovar = np.random.rand(30, 30) * 0.01 # Random covariances
+    AssetCovar = np.triu(AssetCovar) + np.triu(AssetCovar, 1).T # Make it symmetric
+    np.fill_diagonal(AssetCovar, np.random.rand(30) * 0.05) # Ensure diagonal is non-zero
+
+    CashMean = 0.05
+    CashVar = 0.0001
+    MarketMean = 0.12
+    MarketVar = 0.02
+
+    # Calculate standard deviations
+    AssetStd = np.sqrt(np.diag(AssetCovar))
+    MarketStd = math.sqrt(MarketVar)
+    CashStd = math.sqrt(CashVar)
+
+    # Equal-weighted portfolio (assuming equal weight on assets only)
+    EqualWeight = np.array([1/30] * 30)
+    EqualMean = np.sum(EqualWeight * AssetMean)
+    EqualCovar = np.dot(EqualWeight.T, np.dot(AssetCovar, EqualWeight))
+    EqualStd = math.sqrt(EqualCovar)
+
+
+    # Create DataFrame for the plot
+    data = pd.DataFrame({
+        'Return': AssetMean,
+        'Risk': AssetStd,
+        'Asset': AssetList
+    })
+
+    # Add market, cash, and equal-weighted portfolios
+    data = data.append({
+        'Return': MarketMean,
+        'Risk': MarketStd,
+        'Asset': 'Market'
+    }, ignore_index=True)
+    data = data.append({
+        'Return': CashMean,
+        'Risk': CashStd,
+        'Asset': 'Cash'
+    }, ignore_index=True)
+    data = data.append({
+        'Return': EqualMean,
+        'Risk': EqualStd,
+        'Asset': 'Equal'
+    }, ignore_index=True)
+
+    # Create scatter plot using Plotly
+    fig = px.scatter(data, x='Risk', y='Return', text='Asset', title='Asset Risks and Returns')
+    fig.update_traces(textposition='top center')
+    st.plotly_chart(fig, use_container_width=True)
+
+run_page1()
 ```
 
-This command will launch the QuLab application in your web browser. You should see the main page of the application.
+1.  **Data Simulation:**  The code simulates asset means, covariances, market mean/variance, and cash mean/variance.  This is done using `np.random.rand()` to generate random numbers. Note that ideally, this data would be pulled from an external data source or calculated using historical data.
+2.  **Standard Deviation Calculation:** The standard deviation (risk) is calculated as the square root of the variance or the diagonal elements of the covariance matrix.
+3.  **Equal-Weighted Portfolio Calculation:** The mean and variance (and therefore standard deviation) of the equal-weighted portfolio are calculated based on the simulated asset means and covariances.
+4.  **DataFrame Creation:** A Pandas DataFrame is created to store the returns, risks, and names of each asset, the market, cash, and the equal-weighted portfolio.
+5.  **Plotly Scatter Plot:**  A scatter plot is created using `plotly.express` to visualize the risk-return relationship. The `text` argument is used to display the asset names on the plot.
+6.  **Streamlit Integration:** The plot is displayed in the Streamlit application using `st.plotly_chart()`.
 
-## Exploring the Home Page
-Duration: 00:02:00
+## Page 2: Efficient Frontier and Tangent Line
+Duration: 00:20
 
-The home page (`app.py`) serves as the entry point to QuLab. It provides a brief introduction to the application and guides users on how to navigate through its different functionalities.
+This page visualizes the efficient frontier and the tangent line (Capital Allocation Line) originating from the risk-free rate (cash). The efficient frontier represents the set of portfolios that offer the highest expected return for a given level of risk, or the lowest risk for a given level of return. The tangent line represents the optimal allocation between the risk-free asset and the tangency portfolio (the portfolio on the efficient frontier with the highest Sharpe ratio).
 
-Upon launching QuLab, you will see:
+**Key Concepts:**
 
-*   **Sidebar:**  On the left sidebar, you'll notice the QuantUniversity logo and a divider, visually branding the application.
-*   **Application Title:** The main title "QuLab" is prominently displayed, indicating the name of the application.
-*   **Introduction Text:**  A welcoming message explains that QuLab showcases portfolio optimization examples using a financial toolbox. It clearly states that this is a multi-page application and directs users to the sidebar for navigation.
-*   **Copyright and Disclaimer:** At the bottom, you'll find a copyright notice and a disclaimer emphasizing the educational purpose of the application and usage restrictions.
+*   **Efficient Frontier:**  The set of optimal portfolios that offer the highest expected return for a defined level of risk or the lowest risk for a given level of expected return.
+*   **Tangent Line (Capital Allocation Line):**  A line tangent to the efficient frontier at the tangency portfolio. It represents the optimal combinations of the risk-free asset and the tangency portfolio.
+*   **Risk-Free Rate:**  The return on a risk-free asset, such as a Treasury bill (represented here by `CashMean`).
+*   **Sharpe Ratio:** A measure of risk-adjusted return, calculated as (Portfolio Return - Risk-Free Rate) / Portfolio Standard Deviation. The tangency portfolio has the highest Sharpe Ratio of all possible portfolios.
 
-**Navigation:**
+**Code Explanation:**
 
-The key takeaway from the home page is the navigation instruction. Streamlit's multi-page functionality is utilized here, and you can access different sections of QuLab by clicking on the page names listed in the sidebar. These pages correspond to the different portfolio optimization concepts we will explore.
+```python
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import math
 
-<aside class="positive">
-  <b>Tip:</b> Streamlit's multi-page applications are a great way to organize complex dashboards and tools, making them user-friendly and navigable. QuLab effectively uses this feature to separate different aspects of portfolio optimization into distinct pages.
-</aside>
+def run_page2():
+    st.title("Page 2: Efficient Frontier and Tangent Line")
+    st.markdown("This page illustrates the efficient frontier, the tangent line originating from the risk-free rate, and key portfolio characteristics.")
 
-## Overview and Data Setup Page
-Duration: 00:05:00
+    # Simulate data (same as Page 1)
+    AssetList = ['Asset' + str(i) for i in range(1, 31)]
+    AssetMean = np.random.rand(30) * 0.2
+    AssetCovar = np.random.rand(30, 30) * 0.01
+    AssetCovar = np.triu(AssetCovar) + np.triu(AssetCovar, 1).T
+    np.fill_diagonal(AssetCovar, np.random.rand(30) * 0.05)
 
-Navigate to the "Overview" page from the sidebar. This page (`pages/Overview.py`) provides a foundational understanding of portfolio optimization and sets the stage by generating and visualizing synthetic asset data.
+    CashMean = 0.05
+    CashVar = 0.0001
 
-**Page Content:**
+    # Portfolio object simulation
+    class Portfolio:
+        def __init__(self, AssetList, RiskFreeRate):
+            self.AssetList = AssetList
+            self.RiskFreeRate = RiskFreeRate
+            self.NumAssets = len(AssetList)
+            self.InitPort = None  # Initial portfolio weights
+            self.AssetMean = None
+            self.AssetCovar = None
+            self.Bounds = None
+        def setAssetMoments(self, AssetMean, AssetCovar):
+            self.AssetMean = AssetMean
+            self.AssetCovar = AssetCovar
+        def setInitPort(self, InitPort):
+            self.InitPort = InitPort
+        def setDefaultConstraints(self):
+            # Long-only, fully invested
+            self.Bounds = [(0, None) for _ in range(self.NumAssets)]  # Non-negative weights
+        def setBudget(self, min_budget, max_budget):
+            pass
+        def setCosts(self, BuyCost, SellCost):
+            pass
+        def setTurnover(self, Turnover):
+            pass
+        def setTrackingError (self, TrackingError, TrackingPort):
+            pass
+        def setBounds(self, minBound, maxBound):
+            pass
+        def setOnewayTurnover(self, Turnover, InitPort):
+            pass
 
-*   **Title and Description:** The page title "Overview and Data Setup" clearly indicates its purpose.  A markdown description explains that this page offers an overview of portfolio optimization techniques and visualizes synthetic data simulating "BlueChipStockMoments".
-*   **Synthetic Data Generation:** The core functionality here is the generation of synthetic data.
-    *   **`numpy.random.seed(42)`:**  This line ensures reproducibility by setting a seed for NumPy's random number generator.
-    *   **Asset Parameters:** The code defines parameters for 30 assets, including:
-        *   `AssetList`: A list of asset names (Asset 1, Asset 2, ... Asset 30).
-        *   `AssetMean`: Randomly generated mean returns for each asset, uniformly distributed between 0.05 and 0.15.
-        *   `AssetCovar`: A randomly generated covariance matrix, ensuring it is symmetric and has realistic diagonal values (variances).
-    *   **Calculation of Risk and Return:** The code extracts the mean returns (`mret`) and standard deviations (risks, `mrsk`) from the generated data.
-*   **Data Visualization:**
-    *   **Pandas DataFrame:** The generated data is organized into a Pandas DataFrame for easy manipulation and plotting.
-    *   **Plotly Scatter Plot:** A scatter plot is created using Plotly Express to visualize the relationship between risk and return for each asset. The x-axis represents "Risk," the y-axis represents "Return," and each asset is labeled on the plot.
-    *   **`st.plotly_chart(fig, use_container_width=True)`:** This Streamlit command displays the Plotly chart in the application, making it responsive to container width.
+    p = Portfolio(AssetList, CashMean)
+    p.setAssetMoments(AssetMean, AssetCovar)
+    p.setInitPort(np.array([1/30] * 30))
+    p.setDefaultConstraints()
 
-**Understanding the Visualization:**
+    # Efficient Frontier Simulation
+    num_portfolios = 20
+    prsk = np.linspace(0.05, 0.2, num_portfolios)  # Example risk values
+    pret = np.linspace(0.07, 0.25, num_portfolios) # Example return values
 
-The scatter plot on this page is crucial. It visually represents the risk-return profile of individual assets. Each point on the plot is an asset, with its position determined by its expected return (y-axis) and risk (x-axis).  Assets with higher expected returns and lower risks are generally more desirable. This visualization helps in understanding the basic inputs needed for portfolio optimization – expected returns and risks (and covariances between assets, although not directly visualized here).
+    # Tangent Line Simulation
+    qrsk = np.linspace(0.05, 0.15, num_portfolios) # Example tangent risk values
+    qret = CashMean + (qrsk - 0) * (pret[-1] - CashMean) / prsk[-1] # Tangent line
 
-<aside class="positive">
-  <b>Best Practice:</b> Using synthetic data, as demonstrated here, is a great way to prototype and test financial applications without relying on live market data. It allows for controlled experiments and clear demonstrations of concepts.
-</aside>
+    # Create the plot
+    fig = go.Figure()
 
-## Efficient Frontier Page
-Duration: 00:04:00
+    # Efficient Frontier line
+    fig.add_trace(go.Scatter(x=prsk, y=pret, mode='lines', name='Efficient Frontier'))
 
-Navigate to the "Efficient Frontier" page from the sidebar. This page (`pages/EfficientFrontier.py`) introduces the concept of the efficient frontier and visualizes a dummy efficient frontier.
+    # Tangent Line
+    fig.add_trace(go.Scatter(x=qrsk, y=qret, mode='lines', name='Tangent Line'))
 
-**Page Content:**
+    # Market, Cash, Equal Scatter (simulated)
+    fig.add_trace(go.Scatter(x=[0.14, 0.01, 0.1], y=[0.15, CashMean, 0.12], mode='markers', name='Portfolios',
+                             marker=dict(size=8)))
 
-*   **Title and Description:** The page title "Efficient Frontier" clearly indicates its focus.  The markdown description explains that this page illustrates a dummy efficient frontier generated using synthetic data.
-*   **Dummy Efficient Frontier Data:**
-    *   **`risks = np.linspace(0.05, 0.30, 50)`:**  Generates 50 risk values evenly spaced between 0.05 and 0.30. These represent portfolio risk levels.
-    *   **`returns = 0.1 + 0.5 * risks`:** Calculates corresponding portfolio returns. This is a simplified linear relationship to create a dummy efficient frontier for demonstration purposes. In reality, the efficient frontier is derived through optimization algorithms.
-*   **Visualization:**
-    *   **Plotly Graph Object:** Plotly Graph Objects are used for more control over the plot.
-    *   **`go.Scatter`:** A scatter trace is added to the figure with `mode='lines'`, creating a line plot of the efficient frontier.
-    *   **Plot Customization:**  `fig.update_layout` is used to set the title and axis labels for clarity.
-    *   **`st.plotly_chart(...)`:**  The Plotly figure is displayed using Streamlit.
+    fig.update_layout(title='Efficient Frontier with Tangent Line',
+                      xaxis_title='Portfolio Risk',
+                      yaxis_title='Portfolio Return')
 
-**Understanding the Efficient Frontier:**
+    st.plotly_chart(fig, use_container_width=True)
+run_page2()
+```
 
-The efficient frontier represents the set of portfolios that offer the highest expected return for each level of risk, or the lowest risk for each level of expected return.  In simpler terms, for any given level of risk you are willing to take, the efficient frontier shows the portfolio that gives you the maximum possible return.  Portfolios on the efficient frontier are considered "optimal".
+1.  **Data Simulation:**  Similar to Page 1, asset means and covariances are simulated.  The `CashMean` (risk-free rate) is also defined.
+2.  **Portfolio Class:** A `Portfolio` class is defined.  While the methods are defined, they largely do not contain any implementation.  This is a simplification for the purpose of the visualization. In a real-world application, this class would contain the logic for portfolio optimization.
+3.  **Efficient Frontier Simulation:**  The code simulates points on the efficient frontier by generating a range of risk and return values.  In a real application, these points would be calculated using an optimization algorithm.
+4.  **Tangent Line Simulation:**  The tangent line is simulated using the formula:  `qret = CashMean + (qrsk - 0) * (pret[-1] - CashMean) / prsk[-1]`. This formula calculates the return for a given level of risk along the tangent line, given the risk-free rate and the coordinates of the tangency portfolio.
+5.  **Plotly Plot:**  A Plotly line chart is created to display the efficient frontier and the tangent line. Scatter markers are used to represent example portfolios.
 
-The dummy frontier here is a simplified representation.  In a real-world scenario, the efficient frontier is calculated using optimization techniques that consider asset returns, risks, and covariances.  This page focuses on visually introducing the concept of the efficient frontier as a curve in risk-return space.
+## Page 3: Target Return and Risk Portfolios
+Duration: 00:20
 
-<aside class="negative">
-  <b>Important Note:</b> The efficient frontier shown on this page is a simplified, dummy representation. It is not derived from actual portfolio optimization calculations using the synthetic asset data from the "Overview" page. It serves purely for illustrative purposes.
-</aside>
+This page allows you to specify target return and risk values and visualizes portfolios that match those targets on the efficient frontier. This demonstrates how an investor can use the efficient frontier to select a portfolio that meets their specific investment goals.
 
-## Target Portfolio Optimization Page
-Duration: 00:06:00
+**Key Concepts:**
 
-Navigate to the "Target Portfolio Optimization" page from the sidebar. This page (`pages/TargetPortfolio.py`) allows users to interactively define target return and risk levels and see the nearest portfolio on the (dummy) efficient frontier that meets these targets.
+*   **Target Return:**  The desired return on an investment portfolio.
+*   **Target Risk:**  The acceptable level of risk for an investment portfolio.
+*   **Portfolio Selection:** The process of choosing the optimal mix of assets to achieve the desired risk and return profile.
 
-**Page Content:**
+**Code Explanation:**
 
-*   **Title and Description:** The title "Target Portfolio Optimization" and the markdown description clearly explain the page's functionality.
-*   **Interactive Input:**
-    *   **`st.number_input("Target Return ...")`:** A Streamlit number input widget allows users to specify their target annualized return. The `min_value`, `value`, and `step` parameters control the input range and increment.
-    *   **`st.number_input("Target Risk ...")`:** Similarly, a number input widget is provided for users to set their target annualized risk (standard deviation).
-*   **Dummy Efficient Frontier (Replicated):** The code replicates the same dummy efficient frontier data generation as in the "Efficient Frontier" page to have a frontier to work with.
-*   **Target Portfolio Identification:**
-    *   **Distance Calculation:**  The code calculates the Euclidean distance between each point on the efficient frontier and the user's target risk-return point.
-    *   **Nearest Portfolio:** `np.argmin(dist)` finds the index of the point on the efficient frontier that has the minimum distance to the target.
-    *   **Portfolio Risk and Return Extraction:** The risk and return of the nearest portfolio are extracted from the `risks` and `returns` arrays using the identified index.
-*   **Visualization with Target Portfolio Highlight:**
-    *   **Efficient Frontier Plot:** The efficient frontier is plotted as a line plot, similar to the "Efficient Frontier" page.
-    *   **Target Portfolio Marker:** A red marker is added to the plot using `go.Scatter` with `mode='markers'`. This marker highlights the identified target portfolio on the efficient frontier.
-    *   **Plot Customization:** Title and axis labels are set.
-    *   **`st.plotly_chart(...)`:** The Plotly figure is displayed.
-*   **Output Display:**
-    *   **`st.write(f"Target portfolio risk: ...")`:**  The risk and return of the identified target portfolio are displayed below the chart using `st.write`.
+```python
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+import math
 
-**Interactivity and Learning:**
+def run_page3():
+    st.title("Page 3: Target Return and Risk Portfolios")
+    st.markdown("This page shows how to find portfolios that match specified target return and risk values on the efficient frontier.")
 
-This page is highly interactive. By adjusting the "Target Return" and "Target Risk" inputs, users can observe how the highlighted "Target Portfolio" marker moves along the efficient frontier. This visually demonstrates how different investment objectives (target return and risk) lead to different portfolio choices on the efficient frontier.  It helps understand that portfolio selection is about finding a balance between desired return and acceptable risk.
+    # Simulate data (same as Page 1 & 2)
+    AssetList = ['Asset' + str(i) for i in range(1, 31)]
+    AssetMean = np.random.rand(30) * 0.2
+    AssetCovar = np.random.rand(30, 30) * 0.01
+    AssetCovar = np.triu(AssetCovar) + np.triu(AssetCovar, 1).T
+    np.fill_diagonal(AssetCovar, np.random.rand(30) * 0.05)
 
-<aside class="positive">
-  <b>Interactive Elements:</b> Streamlit's input widgets are powerful tools for creating interactive applications that allow users to explore "what-if" scenarios and gain deeper insights from data and models.
-</aside>
+    CashMean = 0.05
 
-## Transaction Costs Impact Page
-Duration: 00:05:00
+    # Portfolio object simulation (same as Page 2)
+    class Portfolio:
+        def __init__(self, AssetList, RiskFreeRate):
+            self.AssetList = AssetList
+            self.RiskFreeRate = RiskFreeRate
+            self.NumAssets = len(AssetList)
+            self.InitPort = None  # Initial portfolio weights
+            self.AssetMean = None
+            self.AssetCovar = None
+            self.Bounds = None
+        def setAssetMoments(self, AssetMean, AssetCovar):
+            self.AssetMean = AssetMean
+            self.AssetCovar = AssetCovar
+        def setInitPort(self, InitPort):
+            self.InitPort = InitPort
+        def setDefaultConstraints(self):
+            # Long-only, fully invested
+            self.Bounds = [(0, None) for _ in range(self.NumAssets)]  # Non-negative weights
+        def setBudget(self, min_budget, max_budget):
+            pass
+        def setCosts(self, BuyCost, SellCost):
+            pass
+        def setTurnover(self, Turnover):
+            pass
+        def setTrackingError (self, TrackingError, TrackingPort):
+            pass
+        def setBounds(self, minBound, maxBound):
+            pass
+        def setOnewayTurnover(self, Turnover, InitPort):
+            pass
 
-Navigate to the "Transaction Costs Impact" page from the sidebar. This page (`pages/TransactionCosts.py`) demonstrates the effect of transaction costs on the efficient frontier.
+    p = Portfolio(AssetList, CashMean)
+    p.setAssetMoments(AssetMean, AssetCovar)
+    p.setInitPort(np.array([1/30] * 30))
+    p.setDefaultConstraints()
 
-**Page Content:**
+    # Efficient Frontier Simulation
+    num_portfolios = 20
+    prsk = np.linspace(0.05, 0.2, num_portfolios)  # Example risk values
+    pret = np.linspace(0.07, 0.25, num_portfolios) # Example return values
 
-*   **Title and Description:** The title "Transaction Costs Impact" and the markdown description clearly state the page's objective.
-*   **Interactive Transaction Cost Input:**
-    *   **`st.number_input("Buy Cost ...")`:** A number input allows users to set the buy transaction cost as a decimal value (e.g., 0.002 for 0.2%).
-    *   **`st.number_input("Sell Cost ...")`:**  Similarly, a number input is provided for setting the sell transaction cost.
-*   **Dummy Frontier Data with Transaction Costs:**
-    *   **`risks = np.linspace(0.05, 0.30, 50)`:** Generates risk values as before.
-    *   **`returns = 0.1 + 0.5 * risks - (buy_cost + sell_cost) * 10`:**  Calculates returns, but this time, it subtracts a term representing the impact of transaction costs.  The `(buy_cost + sell_cost) * 10` part is a simplified way to model the reduction in returns due to transaction costs.  The factor of 10 is arbitrary and for demonstration – in a real model, the impact would be calculated based on portfolio turnover and transaction costs.
-*   **Visualization:**
-    *   **Efficient Frontier Plot (with Transaction Costs):** The efficient frontier, now adjusted for transaction costs, is plotted as a line plot using Plotly.
-    *   **Plot Customization:** Title and axis labels are set.
-    *   **`st.plotly_chart(...)`:** The Plotly figure is displayed.
+    # Input fields for Target Return and Target Risk
+    TargetReturn = st.number_input("Target Return (%)", min_value=0.0, max_value=0.5, value=0.2, step=0.01)
+    TargetRisk = st.number_input("Target Risk (%)", min_value=0.0, max_value=0.5, value=0.15, step=0.01)
 
-**Understanding Transaction Cost Impact:**
+    # Targeted Portfolios (simulation)
+    arsk = TargetRisk / 100
+    aret = TargetReturn / 100
+    brsk = TargetRisk / 100
+    bret = TargetReturn / 100
 
-Transaction costs are the expenses incurred when buying or selling assets. They reduce the net returns of a portfolio. This page demonstrates how transaction costs shift the efficient frontier downwards.  Higher transaction costs lead to lower net returns for any given level of risk, resulting in a less favorable efficient frontier.
+    # Create the plot
+    fig = go.Figure()
 
-By adjusting the "Buy Cost" and "Sell Cost" inputs, users can observe how the efficient frontier shifts in response to changes in transaction costs. This highlights the importance of considering transaction costs in portfolio optimization, especially for strategies with high turnover.
+    # Efficient Frontier line
+    fig.add_trace(go.Scatter(x=prsk, y=pret, mode='lines', name='Efficient Frontier'))
 
-<aside class="negative">
-  <b>Simplification:</b> The way transaction costs are modeled here is a simplification. In reality, the impact of transaction costs is more complex and depends on factors like trading frequency, asset liquidity, and the specific trading strategy. However, this simplified model effectively demonstrates the general negative impact of transaction costs on portfolio returns.
-</aside>
+    # Target Return Portfolio
+    fig.add_trace(go.Scatter(x=[arsk], y=[aret], mode='markers', name=f'{TargetReturn}% Return',
+                             marker=dict(size=10, color='green')))
 
-## Maximum Sharpe Ratio Portfolio Page
-Duration: 00:04:00
+    # Target Risk Portfolio
+    fig.add_trace(go.Scatter(x=[brsk], y=[bret], mode='markers', name=f'{TargetRisk}% Risk',
+                             marker=dict(size=10, color='red')))
 
-Navigate to the "Maximum Sharpe Ratio Portfolio" page from the sidebar. This page (`pages/MaxSharpe.py`) demonstrates the concept of the Maximum Sharpe Ratio portfolio and visualizes it on the efficient frontier.
+    fig.update_layout(title='Efficient Frontier with Targeted Portfolios',
+                      xaxis_title='Portfolio Risk',
+                      yaxis_title='Portfolio Return')
 
-**Page Content:**
+    st.plotly_chart(fig, use_container_width=True)
+run_page3()
+```
 
-*   **Title and Description:** The title "Maximum Sharpe Ratio Portfolio" and the markdown description clearly define the page's purpose.
-*   **Dummy Maximum Sharpe Portfolio Data:**
-    *   **`max_sharpe_risk = 0.15`** and **`max_sharpe_return = 0.13`:** These are hardcoded values representing the risk and return of a hypothetical Maximum Sharpe Ratio portfolio. In a real application, this portfolio would be calculated through optimization.
-*   **Dummy Efficient Frontier (Replicated):**  The same dummy efficient frontier data is generated as on previous pages.
-*   **Visualization with Max Sharpe Portfolio Highlight:**
-    *   **Efficient Frontier Plot:** The dummy efficient frontier is plotted.
-    *   **Max Sharpe Portfolio Marker:** A green marker is added to the plot using `go.Scatter` to highlight the Maximum Sharpe Ratio portfolio.
-    *   **Plot Customization:** Title and axis labels are set.
-    *   **`st.plotly_chart(...)`:** The Plotly figure is displayed.
-*   **Output Display:**
-    *   **`st.write(f"Maximum Sharpe Portfolio -> Risk: ...")`:** The risk and return of the Maximum Sharpe Portfolio are displayed below the chart.
+1.  **Data Simulation and Portfolio Class:**  As in the previous pages, the code simulates asset data and defines a `Portfolio` class (again, with simplified implementations).
+2.  **Efficient Frontier Simulation:**  The efficient frontier is simulated as before.
+3.  **Streamlit Input Fields:**  Streamlit's `st.number_input()` function is used to create input fields for the user to specify their target return and target risk.
+4.  **Targeted Portfolios (Simulation):** The code calculates the x and y coordinates of the targeted portfolios based on user inputs. In a real-world scenario, finding a portfolio for a specific target might require optimization algorithms, especially if the target falls outside the simulated efficient frontier.
+5.  **Plotly Plot:**  A Plotly chart is created to display the efficient frontier, along with markers indicating the target return and target risk portfolios.
 
-**Understanding the Maximum Sharpe Ratio Portfolio:**
+## Further Exploration
+Duration: 00:05
 
-The Sharpe Ratio is a measure of risk-adjusted return, calculated as (Portfolio Return - Risk-Free Rate) / Portfolio Risk. The Maximum Sharpe Ratio portfolio is the portfolio on the efficient frontier that maximizes this ratio. It represents the portfolio that provides the highest return per unit of risk taken.  It is often considered a desirable portfolio in investment management.
+This codelab provides a basic framework for understanding portfolio optimization concepts using Streamlit.  To further explore this topic, consider the following:
 
-On this page, the Maximum Sharpe Ratio portfolio is pre-defined and visualized on the dummy efficient frontier. In a real application, finding the Maximum Sharpe Ratio portfolio involves optimization techniques that consider the risk-free rate, asset returns, risks, and covariances.
+*   **Real-World Data:** Replace the simulated data with real-world stock data from sources like Yahoo Finance or IEX Cloud.
+*   **Optimization Algorithms:** Implement optimization algorithms (e.g., quadratic programming) to calculate the efficient frontier and optimal portfolio weights.
+*   **Constraints:** Add constraints to the portfolio optimization process, such as sector limits or ESG (Environmental, Social, and Governance) criteria.
+*   **Transaction Costs:** Incorporate transaction costs into the optimization process to make it more realistic.
+*   **Backtesting:**  Backtest the performance of different portfolio strategies using historical data.
+*   **More Robust Portfolio Class:** Implement the methods in the `Portfolio` class to appropriately handle constraints and other aspects of portfolio optimization.
 
-<aside class="positive">
-  <b>Sharpe Ratio Importance:</b> The Sharpe Ratio is a widely used metric in finance for evaluating the risk-adjusted performance of investments. Understanding the Maximum Sharpe Ratio portfolio is crucial for portfolio optimization.
-</aside>
-
-## Conclusion
-Duration: 00:02:00
-
-Congratulations on completing the QuLab codelab! You've now explored the key functionalities of the QuLab Streamlit application and gained insights into fundamental portfolio optimization concepts.
-
-**Key Takeaways:**
-
-*   **Interactive Learning:** QuLab provides an interactive and visual platform for learning about portfolio optimization, making complex concepts more accessible and understandable.
-*   **Streamlit for Financial Applications:** This codelab demonstrates how Streamlit can be effectively used to build interactive financial applications and dashboards. Its ease of use and built-in widgets make it ideal for prototyping and educational tools.
-*   **Foundation for Further Exploration:** QuLab serves as a solid foundation for further exploration into portfolio optimization. You can expand upon this application by:
-    *   Integrating real-world market data.
-    *   Implementing actual portfolio optimization algorithms (e.g., Mean-Variance Optimization).
-    *   Adding more sophisticated features, such as backtesting, scenario analysis, and different portfolio constraints.
-    *   Exploring other financial concepts and models within the Streamlit framework.
-
-We encourage you to experiment with the QuLab code, modify it, and build upon it to deepen your understanding of financial modeling and Streamlit application development. This codelab is just the beginning – the world of financial application development is vast and full of opportunities for innovation!
+By expanding on this foundation, you can create a more sophisticated and practical portfolio optimization application.
