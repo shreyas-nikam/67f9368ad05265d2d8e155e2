@@ -4,8 +4,8 @@ import pandas as pd
 import plotly.express as px                                                                                                   
 import plotly.graph_objects as go                                                                                             
                                                                                                                                 
-def run_page3():                                                                                                              
-    st.header("Efficient Frontier with Tangent Line")                                                                         
+def run_page5():                                                                                                              
+    st.header("Efficient Frontier with Targeted Portfolios")                                                                  
                                                                                                                             
     # Load the data (replace with actual loading from file if needed)                                                         
     # In the original code, the data is loaded using load BlueChipStockMoments                                                
@@ -52,10 +52,6 @@ def run_page3():
             # Long-only, fully invested                                                                                       
             pass  # In a real implementation, add constraint matrices here                                                    
                                                                                                                             
-        def setBudget(self, min_cash, max_cash):                                                                              
-            self.min_cash = min_cash                                                                                          
-            self.max_cash = max_cash                                                                                          
-                                                                                                                            
     p = Portfolio(AssetList, CashMean)                                                                                        
     p.setAssetMoments(AssetMean, AssetCovar)                                                                                  
     p.setInitPort(np.ones(num_assets) / num_assets)                                                                           
@@ -74,12 +70,28 @@ def run_page3():
         risks = np.array([np.sqrt(w @ p.AssetCovar @ w.T) for w in weights])                                                  
         return risks, returns                                                                                                 
                                                                                                                             
-    # Tangent Line                                                                                                            
-    q = Portfolio(AssetList, CashMean)                                                                                        
-    q.setAssetMoments(AssetMean, AssetCovar)                                                                                  
-    q.setBudget(0, 1)  # Budget constraint                                                                                    
-    qwgt = estimateFrontier(q, 20)                                                                                            
-    qrsk, qret = estimatePortMoments(q, qwgt)                                                                                 
+    def estimateFrontierByReturn(p, target_return):                                                                           
+        #In a real implementation, solve optimization problem to target return                                                
+        weights = np.random.rand(p.NumAssets)                                                                                 
+        weights = weights / np.sum(weights)                                                                                   
+        return weights                                                                                                        
+                                                                                                                            
+    def estimateFrontierByRisk(p, target_risk):                                                                               
+        #In a real implementation, solve optimization problem to target risk                                                  
+        weights = np.random.rand(p.NumAssets)                                                                                 
+        weights = weights / np.sum(weights)                                                                                   
+        return weights                                                                                                        
+                                                                                                                            
+    # Input fields for target return and risk                                                                                 
+    TargetReturn = st.number_input("Target Return (Annualized)", min_value=0.0, max_value=1.0, value=0.20)                    
+    TargetRisk = st.number_input("Target Risk (Annualized)", min_value=0.0, max_value=1.0, value=0.15)                        
+                                                                                                                            
+    # Estimate portfolios for target return and risk                                                                          
+    awgt = estimateFrontierByReturn(p, TargetReturn/12)                                                                       
+    arsk, aret = estimatePortMoments(p, awgt)                                                                                 
+                                                                                                                            
+    bwgt = estimateFrontierByRisk(p, TargetRisk/np.sqrt(12))                                                                  
+    brsk, bret = estimatePortMoments(p, bwgt)                                                                                 
                                                                                                                             
     weights = estimateFrontier(p, 20)                                                                                         
     risks, returns = estimatePortMoments(p, weights)                                                                          
@@ -87,20 +99,25 @@ def run_page3():
     # Create a DataFrame for the efficient frontier                                                                           
     frontier_data = pd.DataFrame({'Risk': risks, 'Return': returns})                                                          
                                                                                                                             
-    # Create a DataFrame for the tangent efficient frontier                                                                   
-    tangent_frontier_data = pd.DataFrame({'Risk': qrsk, 'Return': qret})                                                      
-                                                                                                                            
     # Create the plot                                                                                                         
-    fig = px.line(frontier_data, x='Risk', y='Return', title='Efficient Frontier with Tangent Line',                          
+    fig = px.line(frontier_data, x='Risk', y='Return', title='Efficient Frontier with Targeted Portfolios',                   
                 labels={'Return': 'Annualized Return', 'Risk': 'Annualized Risk'})                                          
-                                                                                                                            
-    fig.add_trace(go.Scatter(x=tangent_frontier_data['Risk'], y=tangent_frontier_data['Return'], mode='lines', name='Tangent Frontier'))                                                                                                                   
                                                                                                                             
     fig.add_trace(go.Scatter(x=[MarketRisk, CashRisk, EqualRisk], y=[MarketMean, CashMean, EqualMean],                        
                             mode='markers', name='Markers',                                                                  
                             marker=dict(size=[10, 10, 10]),                                                                  
                             text=['Market', 'Cash', 'Equal']))                                                               
                                                                                                                             
+    fig.add_trace(go.Scatter(x=[arsk], y=[aret],                                                                              
+                            mode='markers', name='Target Return',                                                            
+                            marker=dict(size=[10]),                                                                          
+                            text=[f'{100*TargetReturn}% Return']))                                                           
+                                                                                                                            
+    fig.add_trace(go.Scatter(x=[brsk], y=[bret],                                                                              
+                            mode='markers', name='Target Risk',                                                              
+                            marker=dict(size=[10]),                                                                          
+                            text=[f'{100*TargetRisk}% Risk']))                                                               
+                                                                                                                            
     fig.update_layout(showlegend=False)                                                                                       
                                                                                                                             
-    st.plotly_chart(fig, use_container_width=True) 
+    st.plotly_chart(fig, use_container_width=True)    

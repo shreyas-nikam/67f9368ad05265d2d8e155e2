@@ -4,8 +4,8 @@ import pandas as pd
 import plotly.express as px                                                                                                   
 import plotly.graph_objects as go                                                                                             
                                                                                                                                 
-def run_page3():                                                                                                              
-    st.header("Efficient Frontier with Tangent Line")                                                                         
+def run_page6():                                                                                                              
+    st.header("Efficient Frontier with Transaction Costs")                                                                    
                                                                                                                             
     # Load the data (replace with actual loading from file if needed)                                                         
     # In the original code, the data is loaded using load BlueChipStockMoments                                                
@@ -52,9 +52,9 @@ def run_page3():
             # Long-only, fully invested                                                                                       
             pass  # In a real implementation, add constraint matrices here                                                    
                                                                                                                             
-        def setBudget(self, min_cash, max_cash):                                                                              
-            self.min_cash = min_cash                                                                                          
-            self.max_cash = max_cash                                                                                          
+        def setCosts(self, buy_cost, sell_cost):                                                                              
+            self.buy_cost = buy_cost                                                                                          
+            self.sell_cost = sell_cost                                                                                        
                                                                                                                             
     p = Portfolio(AssetList, CashMean)                                                                                        
     p.setAssetMoments(AssetMean, AssetCovar)                                                                                  
@@ -72,29 +72,35 @@ def run_page3():
     def estimatePortMoments(p, weights):                                                                                      
         returns = np.sum(weights * p.AssetMean, axis=1)                                                                       
         risks = np.array([np.sqrt(w @ p.AssetCovar @ w.T) for w in weights])                                                  
+        # In a real implementation, subtract transaction costs from returns                                                   
         return risks, returns                                                                                                 
                                                                                                                             
-    # Tangent Line                                                                                                            
+    # Input fields for transaction costs                                                                                      
+    BuyCost = st.number_input("Buy Cost", min_value=0.0, max_value=0.1, value=0.0020)                                         
+    SellCost = st.number_input("Sell Cost", min_value=0.0, max_value=0.1, value=0.0020)                                       
+                                                                                                                            
+    # Apply transaction costs                                                                                                 
     q = Portfolio(AssetList, CashMean)                                                                                        
     q.setAssetMoments(AssetMean, AssetCovar)                                                                                  
-    q.setBudget(0, 1)  # Budget constraint                                                                                    
-    qwgt = estimateFrontier(q, 20)                                                                                            
-    qrsk, qret = estimatePortMoments(q, qwgt)                                                                                 
+    q.setInitPort(np.ones(num_assets) / num_assets)                                                                           
+    q.setDefaultConstraints()                                                                                                 
+    q.setCosts(BuyCost, SellCost)                                                                                             
                                                                                                                             
     weights = estimateFrontier(p, 20)                                                                                         
     risks, returns = estimatePortMoments(p, weights)                                                                          
                                                                                                                             
+    qweights = estimateFrontier(q, 20)                                                                                        
+    qrisks, qreturns = estimatePortMoments(q, qweights)                                                                       
+                                                                                                                            
     # Create a DataFrame for the efficient frontier                                                                           
     frontier_data = pd.DataFrame({'Risk': risks, 'Return': returns})                                                          
-                                                                                                                            
-    # Create a DataFrame for the tangent efficient frontier                                                                   
-    tangent_frontier_data = pd.DataFrame({'Risk': qrsk, 'Return': qret})                                                      
+    # Create a DataFrame for the efficient frontier with transaction costs                                                    
+    frontier_data_costs = pd.DataFrame({'Risk': qrisks, 'Return': qreturns})                                                  
                                                                                                                             
     # Create the plot                                                                                                         
-    fig = px.line(frontier_data, x='Risk', y='Return', title='Efficient Frontier with Tangent Line',                          
+    fig = px.line(frontier_data, x='Risk', y='Return', title='Efficient Frontier with and without Transaction Costs',         
                 labels={'Return': 'Annualized Return', 'Risk': 'Annualized Risk'})                                          
-                                                                                                                            
-    fig.add_trace(go.Scatter(x=tangent_frontier_data['Risk'], y=tangent_frontier_data['Return'], mode='lines', name='Tangent Frontier'))                                                                                                                   
+    fig.add_trace(go.Scatter(x=frontier_data_costs['Risk'], y=frontier_data_costs['Return'], mode='lines', name='Net'))       
                                                                                                                             
     fig.add_trace(go.Scatter(x=[MarketRisk, CashRisk, EqualRisk], y=[MarketMean, CashMean, EqualMean],                        
                             mode='markers', name='Markers',                                                                  
@@ -103,4 +109,4 @@ def run_page3():
                                                                                                                             
     fig.update_layout(showlegend=False)                                                                                       
                                                                                                                             
-    st.plotly_chart(fig, use_container_width=True) 
+    st.plotly_chart(fig, use_container_width=True)

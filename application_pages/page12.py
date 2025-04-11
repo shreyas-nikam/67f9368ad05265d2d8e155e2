@@ -4,8 +4,8 @@ import pandas as pd
 import plotly.express as px                                                                                                   
 import plotly.graph_objects as go                                                                                             
                                                                                                                                 
-def run_page3():                                                                                                              
-    st.header("Efficient Frontier with Tangent Line")                                                                         
+def run_page12():                                                                                                             
+    st.header("Illustrate that Sharpe is the Tangent Portfolio")                                                              
                                                                                                                             
     # Load the data (replace with actual loading from file if needed)                                                         
     # In the original code, the data is loaded using load BlueChipStockMoments                                                
@@ -58,7 +58,7 @@ def run_page3():
                                                                                                                             
     p = Portfolio(AssetList, CashMean)                                                                                        
     p.setAssetMoments(AssetMean, AssetCovar)                                                                                  
-    p.setInitPort(np.ones(num_assets) / num_assets)                                                                           
+    p.setInitPort(np.zeros(num_assets))                                                                                       
     p.setDefaultConstraints()                                                                                                 
                                                                                                                             
     # Estimate efficient frontier (Simplified)                                                                                
@@ -74,6 +74,12 @@ def run_page3():
         risks = np.array([np.sqrt(w @ p.AssetCovar @ w.T) for w in weights])                                                  
         return risks, returns                                                                                                 
                                                                                                                             
+    def estimateMaxSharpeRatio(p):                                                                                            
+        # In a real implementation, solve optimization problem to maximize Sharpe Ratio                                       
+        weights = np.random.rand(p.NumAssets)                                                                                 
+        weights = weights / np.sum(weights)                                                                                   
+        return weights                                                                                                        
+                                                                                                                            
     # Tangent Line                                                                                                            
     q = Portfolio(AssetList, CashMean)                                                                                        
     q.setAssetMoments(AssetMean, AssetCovar)                                                                                  
@@ -84,6 +90,10 @@ def run_page3():
     weights = estimateFrontier(p, 20)                                                                                         
     risks, returns = estimatePortMoments(p, weights)                                                                          
                                                                                                                             
+    # Estimate Max Sharpe Ratio                                                                                               
+    swgt = estimateMaxSharpeRatio(p)                                                                                          
+    srsk, sret = estimatePortMoments(p, swgt)                                                                                 
+                                                                                                                            
     # Create a DataFrame for the efficient frontier                                                                           
     frontier_data = pd.DataFrame({'Risk': risks, 'Return': returns})                                                          
                                                                                                                             
@@ -91,10 +101,15 @@ def run_page3():
     tangent_frontier_data = pd.DataFrame({'Risk': qrsk, 'Return': qret})                                                      
                                                                                                                             
     # Create the plot                                                                                                         
-    fig = px.line(frontier_data, x='Risk', y='Return', title='Efficient Frontier with Tangent Line',                          
+    fig = px.line(frontier_data, x='Risk', y='Return', title='Efficient Frontier with Maximum Sharpe Ratio Portfolio and Tangent Portfolio',                                                                                                           
                 labels={'Return': 'Annualized Return', 'Risk': 'Annualized Risk'})                                          
                                                                                                                             
     fig.add_trace(go.Scatter(x=tangent_frontier_data['Risk'], y=tangent_frontier_data['Return'], mode='lines', name='Tangent Frontier'))                                                                                                                   
+                                                                                                                            
+    fig.add_trace(go.Scatter(x=[srsk], y=[sret],                                                                              
+                            mode='markers', name='Sharpe',                                                                   
+                            marker=dict(size=[10]),                                                                          
+                            text=['Sharpe']))                                                                                
                                                                                                                             
     fig.add_trace(go.Scatter(x=[MarketRisk, CashRisk, EqualRisk], y=[MarketMean, CashMean, EqualMean],                        
                             mode='markers', name='Markers',                                                                  
@@ -103,4 +118,4 @@ def run_page3():
                                                                                                                             
     fig.update_layout(showlegend=False)                                                                                       
                                                                                                                             
-    st.plotly_chart(fig, use_container_width=True) 
+    st.plotly_chart(fig, use_container_width=True)  

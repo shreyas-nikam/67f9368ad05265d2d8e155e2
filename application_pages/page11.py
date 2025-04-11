@@ -3,9 +3,10 @@ import numpy as np
 import pandas as pd                                                                                                           
 import plotly.express as px                                                                                                   
 import plotly.graph_objects as go                                                                                             
+from plotly.subplots import make_subplots                                                                                     
                                                                                                                                 
-def run_page3():                                                                                                              
-    st.header("Efficient Frontier with Tangent Line")                                                                         
+def run_page11():                                                                                                             
+    st.header("Confirm that Maximum Sharpe Ratio is a Maximum")                                                               
                                                                                                                             
     # Load the data (replace with actual loading from file if needed)                                                         
     # In the original code, the data is loaded using load BlueChipStockMoments                                                
@@ -52,13 +53,9 @@ def run_page3():
             # Long-only, fully invested                                                                                       
             pass  # In a real implementation, add constraint matrices here                                                    
                                                                                                                             
-        def setBudget(self, min_cash, max_cash):                                                                              
-            self.min_cash = min_cash                                                                                          
-            self.max_cash = max_cash                                                                                          
-                                                                                                                            
     p = Portfolio(AssetList, CashMean)                                                                                        
     p.setAssetMoments(AssetMean, AssetCovar)                                                                                  
-    p.setInitPort(np.ones(num_assets) / num_assets)                                                                           
+    p.setInitPort(np.zeros(num_assets))  # set initial to zero                                                                
     p.setDefaultConstraints()                                                                                                 
                                                                                                                             
     # Estimate efficient frontier (Simplified)                                                                                
@@ -74,33 +71,45 @@ def run_page3():
         risks = np.array([np.sqrt(w @ p.AssetCovar @ w.T) for w in weights])                                                  
         return risks, returns                                                                                                 
                                                                                                                             
-    # Tangent Line                                                                                                            
-    q = Portfolio(AssetList, CashMean)                                                                                        
-    q.setAssetMoments(AssetMean, AssetCovar)                                                                                  
-    q.setBudget(0, 1)  # Budget constraint                                                                                    
-    qwgt = estimateFrontier(q, 20)                                                                                            
-    qrsk, qret = estimatePortMoments(q, qwgt)                                                                                 
+    def estimateMaxSharpeRatio(p):                                                                                            
+        # In a real implementation, solve optimization problem to maximize Sharpe Ratio                                       
+        weights = np.random.rand(p.NumAssets)                                                                                 
+        weights = weights / np.sum(weights)                                                                                   
+        return weights                                                                                                        
+                                                                                                                            
+    # Estimate Max Sharpe Ratio                                                                                               
+    swgt = estimateMaxSharpeRatio(p)                                                                                          
+    srsk, sret = estimatePortMoments(p, swgt)                                                                                 
                                                                                                                             
     weights = estimateFrontier(p, 20)                                                                                         
     risks, returns = estimatePortMoments(p, weights)                                                                          
                                                                                                                             
+    # Calculate Sharpe Ratios                                                                                                 
+    sharpe_ratios = (returns - p.RiskFreeRate) / risks                                                                        
+                                                                                                                            
     # Create a DataFrame for the efficient frontier                                                                           
-    frontier_data = pd.DataFrame({'Risk': risks, 'Return': returns})                                                          
+    frontier_data = pd.DataFrame({'Risk': risks, 'Return': returns, 'Sharpe Ratio': sharpe_ratios})                           
                                                                                                                             
-    # Create a DataFrame for the tangent efficient frontier                                                                   
-    tangent_frontier_data = pd.DataFrame({'Risk': qrsk, 'Return': qret})                                                      
+    # Create subplots                                                                                                         
+    fig = make_subplots(rows=2, cols=1, subplot_titles=("Efficient Frontier", "Sharpe Ratio"))                                
                                                                                                                             
-    # Create the plot                                                                                                         
-    fig = px.line(frontier_data, x='Risk', y='Return', title='Efficient Frontier with Tangent Line',                          
-                labels={'Return': 'Annualized Return', 'Risk': 'Annualized Risk'})                                          
+    # Add efficient frontier plot                                                                                             
+    fig.add_trace(go.Scatter(x=frontier_data['Risk'], y=frontier_data['Return'], mode='lines', name='Efficient Frontier'),    
+row=1, col=1)                                                                                                                 
+    fig.add_trace(go.Scatter(x=[srsk], y=[sret], mode='markers', name='Max Sharpe', marker=dict(size=[10]),                   
+text=['Sharpe']), row=1, col=1)                                                                                               
                                                                                                                             
-    fig.add_trace(go.Scatter(x=tangent_frontier_data['Risk'], y=tangent_frontier_data['Return'], mode='lines', name='Tangent Frontier'))                                                                                                                   
+    # Add Sharpe Ratio plot                                                                                                   
+    fig.add_trace(go.Scatter(x=frontier_data['Risk'], y=frontier_data['Sharpe Ratio'], mode='lines', name='Sharpe Ratio'),    
+row=2, col=1)                                                                                                                 
+    fig.add_trace(go.Scatter(x=[srsk], y=[(sret - p.RiskFreeRate) / srsk], mode='markers', name='Max Sharpe',                 
+marker=dict(size=[10]), text=['Sharpe']), row=2, col=1)                                                                       
                                                                                                                             
-    fig.add_trace(go.Scatter(x=[MarketRisk, CashRisk, EqualRisk], y=[MarketMean, CashMean, EqualMean],                        
-                            mode='markers', name='Markers',                                                                  
-                            marker=dict(size=[10, 10, 10]),                                                                  
-                            text=['Market', 'Cash', 'Equal']))                                                               
-                                                                                                                            
-    fig.update_layout(showlegend=False)                                                                                       
+    # Update layout                                                                                                           
+    fig.update_layout(title_text="Efficient Frontier and Sharpe Ratio", showlegend=False)                                     
+    fig.update_xaxes(title_text="Portfolio Risk", row=1, col=1)                                                               
+    fig.update_yaxes(title_text="Portfolio Return", row=1, col=1)                                                             
+    fig.update_xaxes(title_text="Portfolio Risk", row=2, col=1)                                                               
+    fig.update_yaxes(title_text="Sharpe Ratio", row=2, col=1)                                                                 
                                                                                                                             
     st.plotly_chart(fig, use_container_width=True) 

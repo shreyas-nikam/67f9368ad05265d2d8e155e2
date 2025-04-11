@@ -4,8 +4,8 @@ import pandas as pd
 import plotly.express as px                                                                                                   
 import plotly.graph_objects as go                                                                                             
                                                                                                                                 
-def run_page3():                                                                                                              
-    st.header("Efficient Frontier with Tangent Line")                                                                         
+def run_page8():                                                                                                              
+    st.header("Efficient Frontier with Tracking-Error Constraint")                                                            
                                                                                                                             
     # Load the data (replace with actual loading from file if needed)                                                         
     # In the original code, the data is loaded using load BlueChipStockMoments                                                
@@ -52,9 +52,9 @@ def run_page3():
             # Long-only, fully invested                                                                                       
             pass  # In a real implementation, add constraint matrices here                                                    
                                                                                                                             
-        def setBudget(self, min_cash, max_cash):                                                                              
-            self.min_cash = min_cash                                                                                          
-            self.max_cash = max_cash                                                                                          
+        def setTrackingError(self, tracking_error, tracking_port):                                                            
+            self.tracking_error = tracking_error                                                                              
+            self.tracking_port = tracking_port                                                                                
                                                                                                                             
     p = Portfolio(AssetList, CashMean)                                                                                        
     p.setAssetMoments(AssetMean, AssetCovar)                                                                                  
@@ -63,8 +63,8 @@ def run_page3():
                                                                                                                             
     # Estimate efficient frontier (Simplified)                                                                                
     def estimateFrontier(p, num_points=20):                                                                                   
-        # In a real implementation, this would use an optimization solver                                                     
-        # Here, we'll generate random portfolios                                                                              
+        # In a real implementation, this would use an optimization solver with a tracking-error constraint                    
+        # Here, we'll generate random portfolios that *may* violate the constraint                                            
         weights = np.random.rand(num_points, p.NumAssets)                                                                     
         weights = weights / np.sum(weights, axis=1, keepdims=True)  # Normalize weights                                       
         return weights                                                                                                        
@@ -74,33 +74,50 @@ def run_page3():
         risks = np.array([np.sqrt(w @ p.AssetCovar @ w.T) for w in weights])                                                  
         return risks, returns                                                                                                 
                                                                                                                             
-    # Tangent Line                                                                                                            
+    # Define a tracking portfolio                                                                                             
+    ii = [14, 15, 19, 20, 22, 24, 26, 28, 29]  # Indices shifted by 1 to align with python indexing                           
+    TrackingError = 0.05 / np.sqrt(12)                                                                                        
+    TrackingPort = np.zeros(num_assets)                                                                                       
+    TrackingPort[ii] = 1                                                                                                      
+    TrackingPort = (1 / np.sum(TrackingPort)) * TrackingPort                                                                  
+                                                                                                                            
+    # Apply tracking-error constraint                                                                                         
     q = Portfolio(AssetList, CashMean)                                                                                        
     q.setAssetMoments(AssetMean, AssetCovar)                                                                                  
-    q.setBudget(0, 1)  # Budget constraint                                                                                    
-    qwgt = estimateFrontier(q, 20)                                                                                            
-    qrsk, qret = estimatePortMoments(q, qwgt)                                                                                 
+    q.setInitPort(np.ones(num_assets) / num_assets)                                                                           
+    q.setDefaultConstraints()                                                                                                 
+    q.setTrackingError(TrackingError, TrackingPort)                                                                           
                                                                                                                             
     weights = estimateFrontier(p, 20)                                                                                         
     risks, returns = estimatePortMoments(p, weights)                                                                          
                                                                                                                             
+    qweights = estimateFrontier(q, 20)                                                                                        
+    qrisks, qreturns = estimatePortMoments(q, qweights)                                                                       
+                                                                                                                            
+    # Calculate tracking portfolio risk and return                                                                            
+    trsk = np.sqrt(TrackingPort @ AssetCovar @ TrackingPort.T)                                                                
+    tret = np.sum(TrackingPort * AssetMean)                                                                                   
+                                                                                                                            
     # Create a DataFrame for the efficient frontier                                                                           
     frontier_data = pd.DataFrame({'Risk': risks, 'Return': returns})                                                          
-                                                                                                                            
-    # Create a DataFrame for the tangent efficient frontier                                                                   
-    tangent_frontier_data = pd.DataFrame({'Risk': qrsk, 'Return': qret})                                                      
+    # Create a DataFrame for the efficient frontier with tracking-error constraint                                            
+    frontier_data_tracking = pd.DataFrame({'Risk': qrisks, 'Return': qreturns})                                               
                                                                                                                             
     # Create the plot                                                                                                         
-    fig = px.line(frontier_data, x='Risk', y='Return', title='Efficient Frontier with Tangent Line',                          
+    fig = px.line(frontier_data, x='Risk', y='Return', title='Efficient Frontier with Tracking-Error Constraint',             
                 labels={'Return': 'Annualized Return', 'Risk': 'Annualized Risk'})                                          
+    fig.add_trace(go.Scatter(x=frontier_data_tracking['Risk'], y=frontier_data_tracking['Return'], mode='lines',              
+name='Tracking'))                                                                                                             
                                                                                                                             
-    fig.add_trace(go.Scatter(x=tangent_frontier_data['Risk'], y=tangent_frontier_data['Return'], mode='lines', name='Tangent Frontier'))                                                                                                                   
-                                                                                                                            
-    fig.add_trace(go.Scatter(x=[MarketRisk, CashRisk, EqualRisk], y=[MarketMean, CashMean, EqualMean],                        
+    fig.add_trace(go.Scatter(x=[MarketRisk, CashRisk], y=[MarketMean, CashMean],                                              
                             mode='markers', name='Markers',                                                                  
-                            marker=dict(size=[10, 10, 10]),                                                                  
-                            text=['Market', 'Cash', 'Equal']))                                                               
+                            marker=dict(size=[10, 10]),                                                                      
+                            text=['Market', 'Cash']))                                                                        
+    fig.add_trace(go.Scatter(x=[trsk], y=[tret],                                                                              
+                            mode='markers', name='Tracking',                                                                 
+                            marker=dict(size=[10]),                                                                          
+                            text=['Tracking']))                                                                              
                                                                                                                             
     fig.update_layout(showlegend=False)                                                                                       
                                                                                                                             
-    st.plotly_chart(fig, use_container_width=True) 
+    st.plotly_chart(fig, use_container_width=True)  

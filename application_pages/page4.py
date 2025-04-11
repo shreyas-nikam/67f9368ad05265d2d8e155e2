@@ -1,11 +1,9 @@
 import streamlit as st                                                                                                        
 import numpy as np                                                                                                            
 import pandas as pd                                                                                                           
-import plotly.express as px                                                                                                   
-import plotly.graph_objects as go                                                                                             
                                                                                                                                 
-def run_page3():                                                                                                              
-    st.header("Efficient Frontier with Tangent Line")                                                                         
+def run_page4():                                                                                                              
+    st.header("Range of Risks and Returns")                                                                                   
                                                                                                                             
     # Load the data (replace with actual loading from file if needed)                                                         
     # In the original code, the data is loaded using load BlueChipStockMoments                                                
@@ -52,55 +50,32 @@ def run_page3():
             # Long-only, fully invested                                                                                       
             pass  # In a real implementation, add constraint matrices here                                                    
                                                                                                                             
-        def setBudget(self, min_cash, max_cash):                                                                              
-            self.min_cash = min_cash                                                                                          
-            self.max_cash = max_cash                                                                                          
-                                                                                                                            
     p = Portfolio(AssetList, CashMean)                                                                                        
     p.setAssetMoments(AssetMean, AssetCovar)                                                                                  
     p.setInitPort(np.ones(num_assets) / num_assets)                                                                           
     p.setDefaultConstraints()                                                                                                 
                                                                                                                             
-    # Estimate efficient frontier (Simplified)                                                                                
-    def estimateFrontier(p, num_points=20):                                                                                   
+    # Estimate frontier limits (Simplified)                                                                                   
+    def estimateFrontierLimits(p):                                                                                            
         # In a real implementation, this would use an optimization solver                                                     
-        # Here, we'll generate random portfolios                                                                              
-        weights = np.random.rand(num_points, p.NumAssets)                                                                     
-        weights = weights / np.sum(weights, axis=1, keepdims=True)  # Normalize weights                                       
-        return weights                                                                                                        
+        # Here, we'll return the min and max possible weights                                                                 
+        min_weights = np.zeros(p.NumAssets)                                                                                   
+        max_weights = np.zeros(p.NumAssets)                                                                                   
+        min_weights[np.argmin(p.AssetMean)] = 1  # Invest in asset with lowest mean return (min return)                       
+        max_weights[np.argmax(p.AssetMean)] = 1  # Invest in asset with highest mean return (max return)                      
+        return np.vstack((min_weights, max_weights))                                                                          
                                                                                                                             
     def estimatePortMoments(p, weights):                                                                                      
         returns = np.sum(weights * p.AssetMean, axis=1)                                                                       
         risks = np.array([np.sqrt(w @ p.AssetCovar @ w.T) for w in weights])                                                  
         return risks, returns                                                                                                 
                                                                                                                             
-    # Tangent Line                                                                                                            
-    q = Portfolio(AssetList, CashMean)                                                                                        
-    q.setAssetMoments(AssetMean, AssetCovar)                                                                                  
-    q.setBudget(0, 1)  # Budget constraint                                                                                    
-    qwgt = estimateFrontier(q, 20)                                                                                            
-    qrsk, qret = estimatePortMoments(q, qwgt)                                                                                 
+    # Calculate min and max risk/return                                                                                       
+    frontier_limits = estimateFrontierLimits(p)                                                                               
+    rsk, ret = estimatePortMoments(p, frontier_limits)                                                                        
                                                                                                                             
-    weights = estimateFrontier(p, 20)                                                                                         
-    risks, returns = estimatePortMoments(p, weights)                                                                          
-                                                                                                                            
-    # Create a DataFrame for the efficient frontier                                                                           
-    frontier_data = pd.DataFrame({'Risk': risks, 'Return': returns})                                                          
-                                                                                                                            
-    # Create a DataFrame for the tangent efficient frontier                                                                   
-    tangent_frontier_data = pd.DataFrame({'Risk': qrsk, 'Return': qret})                                                      
-                                                                                                                            
-    # Create the plot                                                                                                         
-    fig = px.line(frontier_data, x='Risk', y='Return', title='Efficient Frontier with Tangent Line',                          
-                labels={'Return': 'Annualized Return', 'Risk': 'Annualized Risk'})                                          
-                                                                                                                            
-    fig.add_trace(go.Scatter(x=tangent_frontier_data['Risk'], y=tangent_frontier_data['Return'], mode='lines', name='Tangent Frontier'))                                                                                                                   
-                                                                                                                            
-    fig.add_trace(go.Scatter(x=[MarketRisk, CashRisk, EqualRisk], y=[MarketMean, CashMean, EqualMean],                        
-                            mode='markers', name='Markers',                                                                  
-                            marker=dict(size=[10, 10, 10]),                                                                  
-                            text=['Market', 'Cash', 'Equal']))                                                               
-                                                                                                                            
-    fig.update_layout(showlegend=False)                                                                                       
-                                                                                                                            
-    st.plotly_chart(fig, use_container_width=True) 
+    # Display the results                                                                                                     
+    st.write("Minimum Risk:", rsk[0])                                                                                         
+    st.write("Minimum Return:", ret[0])                                                                                       
+    st.write("Maximum Risk:", rsk[1])                                                                                         
+    st.write("Maximum Return:", ret[1])  
