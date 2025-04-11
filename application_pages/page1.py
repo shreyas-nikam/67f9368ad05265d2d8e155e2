@@ -1,65 +1,52 @@
 
 import streamlit as st
-import pandas as pd
 import numpy as np
+import pandas as pd
 import plotly.express as px
-import math
 
 def run_page1():
-    st.title("Page 1: Asset Risks and Returns")
-    st.markdown("This page visualizes the annualized mean returns and standard deviations of individual assets, along with the market, cash, and equal-weighted portfolios.")
+    st.header("Asset Risks and Returns")
 
-    # Simulate data from BlueChipStockMoments.mat
-    AssetList = ['Asset' + str(i) for i in range(1, 31)]
-    AssetMean = np.random.rand(30) * 0.2  # Random means between 0 and 0.2
-    AssetCovar = np.random.rand(30, 30) * 0.01 # Random covariances
-    AssetCovar = np.triu(AssetCovar) + np.triu(AssetCovar, 1).T # Make it symmetric
-    np.fill_diagonal(AssetCovar, np.random.rand(30) * 0.05) # Ensure diagonal is non-zero
+    # Load the data (replace with actual loading from file if needed)
+    # In the original code, the data is loaded using load BlueChipStockMoments
+    # For this streamlit app, let's assume the data is stored as numpy arrays or pandas DataFrames
 
-    CashMean = 0.05
+    # Generate synthetic data (based on BlueChipStockMoments.mat)
+    np.random.seed(42)  # for reproducibility
+    num_assets = 30
+    AssetList = [f'Asset {i+1}' for i in range(num_assets)]
+    AssetMean = np.random.rand(num_assets) * 0.2  # Annualized mean returns (e.g., 0 to 20%)
+    AssetCovar = np.random.rand(num_assets, num_assets)
+    AssetCovar = np.triu(AssetCovar) + AssetCovar.T - np.diag(np.diag(AssetCovar)) #Make symmetric
+    AssetCovar = AssetCovar * 0.01 # Scale the covariance matrix
+    CashMean = 0.03  # Risk-free rate (e.g., 3%)
     CashVar = 0.0001
-    MarketMean = 0.12
-    MarketVar = 0.02
+    MarketMean = 0.10  # Market mean return (e.g., 10%)
+    MarketVar = 0.04
 
     # Calculate standard deviations
-    AssetStd = np.sqrt(np.diag(AssetCovar))
-    MarketStd = math.sqrt(MarketVar)
-    CashStd = math.sqrt(CashVar)
+    AssetRisk = np.sqrt(np.diag(AssetCovar))
+    MarketRisk = np.sqrt(MarketVar)
+    CashRisk = np.sqrt(CashVar)
 
-    # Equal-weighted portfolio (assuming equal weight on assets only)
-    EqualWeight = np.array([1/30] * 30)
+    # Equal-weighted portfolio
+    EqualWeight = np.ones(num_assets) / num_assets
     EqualMean = np.sum(EqualWeight * AssetMean)
-    EqualCovar = np.dot(EqualWeight.T, np.dot(AssetCovar, EqualWeight))
-    EqualStd = math.sqrt(EqualCovar)
+    EqualRisk = np.sqrt(EqualWeight @ AssetCovar @ EqualWeight)
 
+    # Create a DataFrame for the assets
+    asset_data = pd.DataFrame({'Mean Return': AssetMean, 'Risk': AssetRisk}, index=AssetList)
 
-    # Create DataFrame for the plot
-    data = pd.DataFrame({
-        'Return': AssetMean,
-        'Risk': AssetStd,
-        'Asset': AssetList
-    })
+    # Create a scatter plot
+    fig = px.scatter(asset_data, x='Risk', y='Mean Return', text=asset_data.index,
+                     title='Asset Risks and Returns', labels={'Mean Return': 'Annualized Mean Return', 'Risk': 'Annualized Risk'})
+    fig.add_trace(px.scatter(x=[MarketRisk], y=[MarketMean], text=['Market'],
+                              labels={'x': 'Risk', 'y': 'Mean Return'}).data[0])
+    fig.add_trace(px.scatter(x=[CashRisk], y=[CashMean], text=['Cash'],
+                              labels={'x': 'Risk', 'y': 'Mean Return'}).data[0])
+    fig.add_trace(px.scatter(x=[EqualRisk], y=[EqualMean], text=['Equal'],
+                              labels={'x': 'Risk', 'y': 'Mean Return'}).data[0])
 
-    # Add market, cash, and equal-weighted portfolios
-    data = data.append({
-        'Return': MarketMean,
-        'Risk': MarketStd,
-        'Asset': 'Market'
-    }, ignore_index=True)
-    data = data.append({
-        'Return': CashMean,
-        'Risk': CashStd,
-        'Asset': 'Cash'
-    }, ignore_index=True)
-    data = data.append({
-        'Return': EqualMean,
-        'Risk': EqualStd,
-        'Asset': 'Equal'
-    }, ignore_index=True)
-
-    # Create scatter plot using Plotly
-    fig = px.scatter(data, x='Risk', y='Return', text='Asset', title='Asset Risks and Returns')
     fig.update_traces(textposition='top center')
-    st.plotly_chart(fig, use_container_width=True)
 
-run_page1()
+    st.plotly_chart(fig, use_container_width=True)
