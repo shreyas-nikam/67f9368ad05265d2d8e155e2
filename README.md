@@ -1,24 +1,37 @@
+# QuLab: Portfolio Optimization Examples Using Financial Toolbox
 
-# QuLab - Portfolio Optimization Examples
+This repository contains a Streamlit multi-page application that demonstrates portfolio optimization techniques inspired by MATLAB Financial Toolbox examples.
 
-This Streamlit application demonstrates portfolio optimization concepts using the Financial Toolbox.
+## Features
 
-## Overview
+- Interactive data visualizations using Plotly.
+- Synthetic data generation to simulate BlueChipStockMoments.
+- Multipage navigation covering:
+  - Overview and Data Setup
+  - Efficient Frontier Visualization
+  - Target Portfolio Optimization
+  - Transaction Costs Impact Analysis
+  - Maximum Sharpe Ratio Portfolio
 
-This application provides an interactive environment to explore mean-variance portfolio optimization and related techniques. It's based on examples from the MATLAB Financial Toolbox, adapted for Streamlit and Plotly.
+## Getting Started
 
-## Instructions
+1. Install dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
 
-1.  Clone the repository.
-2.  Install the required packages: `pip install -r requirements.txt`
-3.  Run the application: `streamlit run app.py`
+2. Run the application:
+   ```
+   streamlit run app.py
+   ```
 
-## Pages
+## Docker
 
-*   **Page 1:** [Description of Page 1]
-*   **Page 2:** [Description of Page 2]
-*   **Page 3:** [Description of Page 3]
+A Dockerfile is provided. To build and run the Docker container:
 
-## License
+   ```
+   docker build -t qulab .
+   docker run -p 8501:8501 qulab
+   ```
 
-© 2025 QuantUniversity. All Rights Reserved. This demonstration is for educational use only.
+© 2025 QuantUniversity. All Rights Reserved.
