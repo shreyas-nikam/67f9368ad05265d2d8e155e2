@@ -111,6 +111,7 @@ This Streamlit application implements the portfolio optimization examples provid
 *   **Pandas (Potentially):** While not explicitly required by the instructions, pandas could be useful for:
     *   Data manipulation and analysis, particularly for loading and working with the data in a tabular format.
     *   Creating dataframes for displaying portfolio weights and asset information.
+* **cvxpy** or any other libraries to solve the optimization problems.
 
 
 Generate complete code. Use proper optimization solvers. Do not generate or simulate random results.
