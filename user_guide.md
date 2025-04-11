@@ -3,52 +3,45 @@ summary: Portfolio Optimization Examples Using Financial Toolbox User Guide
 feedback link: https://docs.google.com/forms/d/e/1FAIpQLSfWkOK-in_bMMoHSZfcIvAeO58PAH9wrDqcxnJABHaxiDqhSA/viewform?usp=sf_link
 environments: Web
 status: Published
-# QuLab User Guide
+# QuLab User Guide: Exploring Portfolio Optimization and Hedge Fund Strategies
 
-This codelab provides a comprehensive guide to using the QuLab application. QuLab is designed as a multi-page application built with Streamlit, offering a modular structure for showcasing different functionalities or concepts. Understanding the navigation and structure of QuLab will allow you to effectively explore and utilize its features. This guide will walk you through the application's layout and demonstrate how to interact with its various pages.
+QuLab is a Streamlit application designed to illustrate key concepts in quantitative finance, particularly portfolio optimization and hedge fund strategies. This user guide will walk you through the application's features, explaining how to navigate and understand each page. Understanding these concepts is crucial for anyone interested in investment management, risk analysis, and financial modeling. QuLab provides an interactive platform to visualize and explore these strategies.
 
-## Understanding the QuLab Layout
+## Understanding the QuLab Interface
 Duration: 00:02
 
-QuLab is structured with a sidebar for navigation and a main area for content display. This separation allows for easy switching between different sections of the application. The sidebar contains the navigation menu, while the main area displays the content associated with the selected page.
+This step will familiarize you with the basic layout of the QuLab application. Notice the sidebar on the left-hand side and the main content area. The sidebar provides navigation options to access different pages of the application, each demonstrating a specific financial concept. The main content area displays the content of the selected page.
 
-## Navigating Through QuLab
+## Navigating to Page 1: Efficient Frontier
 Duration: 00:03
 
-1.  **Sidebar Navigation:** Locate the sidebar on the left side of the application. You'll find the QuantUniversity logo and a navigation menu labeled "Navigation".
-2.  **Selecting a Page:** The "Navigation" menu is a dropdown selectbox. Click on it to reveal a list of available pages: "Page 1", "Page 2", and "Page 3".
-3.  **Switching Pages:** Select a page from the dropdown menu. The main area of the application will update to display the content associated with the selected page.
+1.  **Locate the Navigation Menu:** In the sidebar on the left, find the dropdown menu labeled "Navigation".
+2.  **Select "Page 1":** Click on the dropdown and choose "Page 1". This will load the Efficient Frontier page.
+3.  **Observe the Content:** The main content area will now display the header "Page 1: Efficient Frontier" along with a brief description. This page will eventually visualize the efficient frontier, a key concept in portfolio optimization.  The efficient frontier represents the set of portfolios that offer the highest expected return for a given level of risk or the lowest risk for a given level of expected return.
 
-## Exploring Page 1
-Duration: 00:01
+## Exploring Page 2: Sharpe Ratio Maximization
+Duration: 00:03
 
-1.  **Selecting Page 1:** In the sidebar's "Navigation" menu, choose "Page 1".
-2.  **Page 1 Content:** The main area will now display "Page 1" as a title, followed by the text "Content for Page 1". This is a placeholder, and in a real application, this space would contain interactive elements, visualizations, or other relevant information.
+1.  **Return to the Navigation Menu:** Go back to the "Navigation" dropdown in the sidebar.
+2.  **Select "Page 2":** Choose "Page 2" from the dropdown menu. This will navigate you to the Sharpe Ratio Maximization page.
+3.  **Review the Content:**  The main area should now display "Page 2: Sharpe Ratio Maximization" and its description. This page focuses on maximizing the Sharpe Ratio, a measure of risk-adjusted return.  A higher Sharpe Ratio indicates better performance for the level of risk taken.
 
-## Exploring Page 2
-Duration: 00:01
+## Understanding Page 3: Dollar-Neutral Hedge Fund
+Duration: 00:03
 
-1.  **Selecting Page 2:** In the sidebar's "Navigation" menu, choose "Page 2".
-2.  **Page 2 Content:** The main area will now display "Page 2" as a title, followed by the text "Content for Page 2". Similar to Page 1, this is a placeholder for actual content.
-
-## Exploring Page 3
-Duration: 00:01
-
-1.  **Selecting Page 3:** In the sidebar's "Navigation" menu, choose "Page 3".
-2.  **Page 3 Content:** The main area will now display "Page 3" as a title, followed by the text "Content for Page 3". This is another placeholder page.
-
-## Understanding the Footer
-Duration: 00:01
-
-At the bottom of the main area, you'll find a footer. This footer contains:
-
-1.  **Copyright Information:**  "© 2025 QuantUniversity. All Rights Reserved." indicates the copyright holder and reservation of rights.
-2.  **Disclaimer:** A caption states that the demonstration is for educational purposes only and requires written consent for reproduction. This highlights the application's purpose and any usage restrictions.
+1.  **Access the Navigation Menu:** Find the "Navigation" dropdown in the sidebar once more.
+2.  **Select "Page 3":** Select "Page 3" from the options. This will take you to the Dollar-Neutral Hedge Fund page.
+3.  **Examine the Content:**  The main content area now displays "Page 3: Dollar-Neutral Hedge Fund" and its description. This page will demonstrate a dollar-neutral hedge fund strategy, which aims to neutralize market risk by balancing long and short positions.
 
 <aside class="positive">
-This simple structure demonstrates how to create a multi-page application using Streamlit, enabling you to organize your content effectively. <b>Remember to replace the placeholder content with your actual application logic and components.</b>
+By navigating through these pages, you're setting the stage for understanding the core concepts the application will demonstrate.  Each page builds upon foundational principles in quantitative finance.
 </aside>
 
+## Further Exploration and Considerations
+Duration: 00:01
+
+Currently, the pages contain placeholder text. As the application is developed, each page will include interactive elements and visualizations to further demonstrate the concepts mentioned. Keep an eye out for updates to QuLab, as it promises to be a valuable tool for learning about portfolio optimization and hedge fund strategies. Remember to consult the disclaimers at the bottom of the application.
+
 <aside class="negative">
-The demonstration currently only has placeholder content. Functionality is limited to navigating between pages. <b>To experience the full potential of QuLab, replace the placeholder content with meaningful code.</b>
+This application is for educational purposes only.  Do not base investment decisions solely on the information presented here. Always consult with a qualified financial advisor.
 </aside>
