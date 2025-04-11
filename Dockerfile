@@ -1,4 +1,3 @@
-
 # Use Python base image
 FROM python:3.12-slim
 
@@ -9,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt /app/
 
 # Install dependencies
-RUN pip install --upgrade pip     && pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Copy the rest of the application code
 COPY . /app
