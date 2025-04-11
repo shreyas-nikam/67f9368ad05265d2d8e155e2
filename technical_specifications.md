@@ -113,5 +113,5 @@ This Streamlit application implements the portfolio optimization examples provid
     *   Creating dataframes for displaying portfolio weights and asset information.
 * **cvxpy** or any other libraries to solve the optimization problems.
 
-
+Have all the generated graphs prefixed and suffixed by markdown code explaining the process.
 Generate complete code. Use proper optimization solvers. Do not generate or simulate random results.
